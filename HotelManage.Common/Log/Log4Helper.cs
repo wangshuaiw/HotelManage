@@ -18,7 +18,7 @@ namespace HotelManage.Common.Log
         //定义私有构造函数，使外界不能创建该类实例
         private Log4Helper()
         {
-            logger = LogManager.GetLogger(typeof(Log4Helper));
+            logger = LogManager.GetLogger("HotelManage", "HotelManage");
         }
 
         //可以定义公有属性来提供全局访问点
@@ -35,6 +35,11 @@ namespace HotelManage.Common.Log
                 }
                 return _instance;
             }
+        }
+
+        public Log4Helper(string name)
+        {
+            logger = LogManager.GetLogger("HotelManage",name);
         }
 
         public void Debug(object msg)
