@@ -1,0 +1,7 @@
+2018-07-09 18:11:30.6994 Error Parsing configuration from D:\study\HotelManage\HotelManage.Api\bin\Debug\netcoreapp2.0\nlog.config failed. Exception: NLog.NLogConfigurationException: Exception when parsing D:\study\HotelManage\HotelManage.Api\bin\Debug\netcoreapp2.0\nlog.config.  ---> NLog.NLogConfigurationException: Target allfile not found.
+   at NLog.Config.XmlLoggingConfiguration.ParseLoggerElement(NLogXmlElement loggerElement, IList`1 rulesCollection)
+   at NLog.Config.XmlLoggingConfiguration.ParseRulesElement(NLogXmlElement rulesElement, IList`1 rulesCollection)
+   at NLog.Config.XmlLoggingConfiguration.ParseNLogElement(NLogXmlElement nlogElement, String filePath, Boolean autoReloadDefault)
+   at NLog.Config.XmlLoggingConfiguration.Initialize(XmlReader reader, String fileName, Boolean ignoreErrors)
+   --- End of inner exception stack trace ---
+2018-07-09 18:11:30.7054 Warn Failed loading config from D:\study\HotelManage\HotelManage.Api\bin\Debug\netcoreapp2.0\nlog.config. Invalid XML?

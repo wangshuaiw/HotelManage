@@ -3,16 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace HotelManage.Api.Controllers
 {
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
+        private readonly ILogger<ValuesController> logger;
+
+        public ValuesController(ILogger<ValuesController> _logger)
+        {
+            logger = _logger;
+        }
+
         // GET api/values
         [HttpGet]
         public IEnumerable<string> Get()
         {
+            logger.LogInformation("Information!");
+            logger.LogWarning("Warning!");
+            logger.LogError("Error!");
             return new string[] { "value1", "value2" };
         }
 
