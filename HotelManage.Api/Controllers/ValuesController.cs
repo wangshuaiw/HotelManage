@@ -21,9 +21,7 @@ namespace HotelManage.Api.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            logger.LogInformation("Information!");
-            logger.LogWarning("Warning!");
-            logger.LogError("Error!");
+            int i = int.Parse("s");
             return new string[] { "value1", "value2" };
         }
 
