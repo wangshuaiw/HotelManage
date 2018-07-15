@@ -1,6 +1,7 @@
 ﻿using HotelManage.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,8 +15,16 @@ namespace HotelManage.Api.Filter
     /// </summary>
     public class GlobalActionFilterAttribute: ActionFilterAttribute
     {
+        private readonly ILogger logger;
+
+        public GlobalActionFilterAttribute()
+        {
+            ILoggerFactory LoggerFactory = new LoggerFactory();
+            logger = LoggerFactory.CreateLogger("GlobalAction");
+        }
+
         /// <summary>
-        /// 模型验证 and ...
+        /// 模型验证 and 计时器
         /// </summary>
         /// <param name="context"></param>
         public override void OnActionExecuting(ActionExecutingContext context)
@@ -34,9 +43,9 @@ namespace HotelManage.Api.Filter
             }
 
             //开启计时器
-            //var stopwach = new Stopwatch();
-            //stopwach.Start();
-            //context.HttpContext.Items.Add(Resources.StopwachKey, stopwach);
+            var stopwach = new Stopwatch();
+            stopwach.Start();
+            context.HttpContext.Items.Add("GlabolStopwach__", stopwach);
         }
 
         /// <summary>
@@ -45,17 +54,15 @@ namespace HotelManage.Api.Filter
         /// <param name="context"></param>
         public override async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
-            //var httpContext = context.HttpContext;
-            //var stopwach = httpContext.Items[Resources.StopwachKey] as Stopwatch;
-            //stopwach.Stop();
-            //var time = stopwach.Elapsed;
+            var httpContext = context.HttpContext;
+            var stopwach = httpContext.Items["GlabolStopwach__"] as Stopwatch;
+            stopwach.Stop();
+            var time = stopwach.Elapsed;
 
-            //if (time.TotalSeconds > 5)
-            //{
-            //    var factory = context.HttpContext.RequestServices.GetService<ILoggerFactory>();
-            //    var logger = factory.CreateLogger<ActionExecutedContext>();
-            //    logger.LogWarning($"{context.ActionDescriptor.DisplayName}执行耗时:{time.ToString()}");
-            //}
+            if (time.TotalSeconds > 5)
+            {
+                logger.LogWarning($"{context.ActionDescriptor.DisplayName}执行耗时:{time.ToString()}");
+            }
 
             await next();
 
