@@ -26,7 +26,8 @@ namespace HotelManage.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc(options=> {
-                options.Filters.Add(new GlobalExceptionFilterAttributeAttribute());
+                options.Filters.Add<GlobalActionFilter>();
+                options.Filters.Add<GlobalExceptionFilter>();
             });
         }
 

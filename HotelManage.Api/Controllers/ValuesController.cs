@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -21,7 +22,7 @@ namespace HotelManage.Api.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            int i = int.Parse("s");
+            Thread.Sleep(10000);
             return new string[] { "value1", "value2" };
         }
 

@@ -20,7 +20,7 @@ namespace HotelManage.Api
             var logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
             try
             {
-                logger.Debug("init main");
+                logger.Info("init main");
                 BuildWebHost(args).Run();
             }
             catch (Exception ex)
