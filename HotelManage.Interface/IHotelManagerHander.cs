@@ -9,6 +9,13 @@ namespace HotelManage.Interface
     public interface IHotelManagerHander:IHotelManageHander<Hotelmanager>
     {
         /// <summary>
+        /// 根据微信openid获取宾馆
+        /// </summary>
+        /// <param name="openId"></param>
+        /// <returns></returns>
+        Hotel GetHotelByOpenId(string openId);
+
+        /// <summary>
         /// 新增管理者
         /// </summary>
         /// <param name="manager"></param>

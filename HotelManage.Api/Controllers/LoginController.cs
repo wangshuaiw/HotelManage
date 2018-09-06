@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using HotelManage.Common;
 using HotelManage.DBModel;
+using HotelManage.Interface;
 using HotelManage.ViewModel.ApiVM;
 using HotelManage.ViewModel.ApiVM.ResponseVM;
 using Microsoft.AspNetCore.Authorization;
@@ -21,14 +22,14 @@ namespace HotelManage.Api.Controllers
     {
         public IConfiguration Configuration { get; }
         public ILogger<LoginController> Logger { get; }
-        public hotelmanageContext HotelContext { get; }
+        public IHotelManagerHander Hander { get; }
 
-        public LoginController(IConfiguration configuration, ILogger<LoginController> logger,hotelmanageContext context)
+        public LoginController(IConfiguration configuration, ILogger<LoginController> logger, IHotelManagerHander hander)
 
         {
             Configuration = configuration;
             Logger = logger;
-            HotelContext = context;
+            Hander = hander;
         }
 
         public IActionResult Index()
@@ -50,13 +51,15 @@ namespace HotelManage.Api.Controllers
             {
                 WxLoginInfo wxInfo = JsonConvert.DeserializeObject<WxLoginInfo>(response);
 
-                var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("AppSetting:JwtSigningKey")));
-                if (wxInfo != null && string.IsNullOrEmpty(wxInfo.openid))
+                if (wxInfo != null && !string.IsNullOrEmpty(wxInfo.openid))
                 {
                     var claims = new Claim[] {
                         //new Claim(ClaimTypes.Name, "John"),
-                        new Claim(JwtRegisteredClaimNames.NameId, wxInfo.openid)
+                        new Claim(JwtRegisteredClaimNames.NameId, wxInfo.openid),
+                        new Claim(JwtRegisteredClaimNames.UniqueName,string.IsNullOrEmpty(wxInfo.unionid)?"":wxInfo.unionid)
                     };
+
+                    var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("AppSetting:JwtSigningKey")));
                     var token = new JwtSecurityToken(
                         issuer: Configuration.GetValue<string>("AppSetting:JwtIssuer"),
                         audience: Configuration.GetValue<string>("AppSetting:JwtAudience"),
@@ -69,16 +72,19 @@ namespace HotelManage.Api.Controllers
                     resultData.JwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
                     //获取对应的宾馆 todo
-                    var hotel = (from m in HotelContext.Hotelmanager
-                                 join h in HotelContext.Hotel
-                                 on m.HotelId equals h.Id
-                                 where m.IsDel == false && h.IsDel == false && m.WxOpenId == wxInfo.openid
-                                 select h).FirstOrDefault();
+                    var hotel = Hander.GetHotelByOpenId(wxInfo.openid);
                     resultData.Hotel = hotel;
                 }
+                else
+                {
+                    throw new Exception("微信登录接口返回异常！" + response);
+                }
+            }
+            else
+            {
+                throw new Exception("微信登录接口返回为空");
             }
             return new Response<Login>() { Status = StatusEnum.Success, Massage = "登录成功", Data = resultData };
         }
-        
     }
 }

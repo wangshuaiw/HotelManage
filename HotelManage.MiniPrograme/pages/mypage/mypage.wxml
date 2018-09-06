@@ -4,12 +4,16 @@
       <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
       <text class="userinfo-nickname">{{userInfo.nickName}}</text>
   </view>
-  <view class='myhotel'>
+  <view class="myhotel {{editHotel ? 'hide' : 'show'}}">
     <button wx:if="{{!hasHotel}}" bindtap="addHotel">添加宾馆</button>
     <block wx:else>
     <text>我的宾馆:{{userInfo.nickName}}的宾馆</text>
     <text decode="{{true}}" >地&emsp;&emsp;址：</text>
     </block>
+  </view>
+  <view class="{{editHotel ? 'show' : 'hide'}}">
+    <view>地区</view>
+    
   </view>
 
   <view class='myhotel'>

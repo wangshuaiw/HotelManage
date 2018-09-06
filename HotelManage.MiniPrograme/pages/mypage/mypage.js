@@ -9,7 +9,9 @@ Page({
     hasUserInfo:false,
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
     myHotel:{},
-    hasHotel:false
+    hasHotel:false,
+    editHotel:false,
+    token:null
   },
 
   /**
@@ -40,6 +42,19 @@ Page({
             hasUserInfo: true
           })
         }
+      })
+    }
+
+    if(app.globalData.hotel){
+      this.setData({
+        myHotel: app.globalData.hotel,
+        hasHotel:true
+      })
+    }
+
+    if(app.globalData.token){
+      this.setData({
+        token:app.globalData.token
       })
     }
   },
@@ -102,6 +117,7 @@ Page({
   },
 
   addHotel:function(e){
-    console.log("add hotel");
+    //console.log("add hotel");
+
   }
 })
