@@ -19,16 +19,24 @@ App({
             data:{
               wxcode: res.code
             },
-            success:function(r){
-              if (r.statusCode&&r.statusCode==200&&r.data&&r.data.data){
-                wx.setStorageSync("token", r.data.data)
+            success:r=>{
+              if (r.statusCode&&r.statusCode==200&&r.data){
+                var response=r.data;
+                if (response.status==1&&response.data){
+                  this.globalData.token = response.data.jwtToken;
+                  this.globalData.hotel = response.data.hotel;
+                }else{
+                  wx.navigateTo({
+                    url: '/pages/loginerror/loginerror',
+                  })
+                }
               }else{
                 wx.navigateTo({
                   url: '/pages/loginerror/loginerror',
                 })
               }
             },
-            fail:function(e){
+            fail:e=>{
               wx.navigateTo({
                 url: '/pages/loginerror/loginerror',
               })
@@ -71,6 +79,7 @@ App({
   },
   globalData: {
     userInfo: null,
-    myHotel: null
+    hotel: null,
+    token:null
   }
 })
