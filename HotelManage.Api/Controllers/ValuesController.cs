@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -13,16 +14,18 @@ namespace HotelManage.Api.Controllers
     {
         private readonly ILogger<ValuesController> logger;
 
-        public ValuesController(ILogger<ValuesController> _logger)
+        private readonly IHttpContextAccessor httpContext;
+
+        public ValuesController(ILogger<ValuesController> _logger, IHttpContextAccessor _context)
         {
             logger = _logger;
+            httpContext = _context;
         }
 
         // GET api/values
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            Thread.Sleep(10000);
             return new string[] { "value1", "value2" };
         }
 

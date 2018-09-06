@@ -1,5 +1,4 @@
-﻿using HotelManage.Api.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using System;
@@ -8,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using HotelManage.ViewModel.ApiVM;
 
 namespace HotelManage.Api.Filter
 {
@@ -42,9 +42,9 @@ namespace HotelManage.Api.Filter
                 BaseResponse response = new BaseResponse()
                 {
                     Status = StatusEnum.ValidateModelError,
-                    Massage = "数据校验不符:"+ errorMsg
+                    Massage = "数据校验不符:" + errorMsg
                 };
-                context.Result = new OkObjectResult(response);   
+                context.Result = new OkObjectResult(response);
             }
 
             //开启计时器

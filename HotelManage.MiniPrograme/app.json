@@ -1,0 +1,35 @@
+{
+  "pages":[
+    
+    "pages/mypage/mypage",
+    "pages/status/status",
+    "pages/room/room",
+    "pages/login/login",
+    "pages/index/index",
+    "pages/loginerror/loginerror"
+  ],
+  "window":{
+    "backgroundTextStyle":"light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "我的宾馆",
+    "navigationBarTextStyle":"black"
+  },
+  "tabBar": {
+    "list": [{
+      "pagePath": "pages/status/status",
+      "text": "状态",
+      "iconPath": "image/ic_index.png",
+      "selectedIconPath": "image/ic_index_ck.png"
+    },{
+      "pagePath":"pages/room/room",
+      "text":"管理",
+      "iconPath":"image/ic_star.png",
+      "selectedIconPath":"image/ic_star_ck.png"
+    },{
+      "pagePath":"pages/mypage/mypage",
+      "text":"我的",
+      "iconPath":"image/ic_my.png",
+      "selectedIconPath":"image/ic_my_ck.png"
+    }]
+  }
+}

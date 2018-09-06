@@ -1,0 +1,6 @@
+<!--pages/login/login.wxml-->
+<view class='container'>
+  <button open-type="getUserInfo" bindgetuserinfo="getUserInfo">
+    请先授权登录
+  </button>
+</view>

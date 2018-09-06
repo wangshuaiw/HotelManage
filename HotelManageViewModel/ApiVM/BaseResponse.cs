@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace HotelManage.Api.Models
+namespace HotelManage.ViewModel.ApiVM
 {
     public class BaseResponse
     {
@@ -11,8 +9,18 @@ namespace HotelManage.Api.Models
 
         public string Massage { set; get; }
 
-        public object Data { set; get; }
     }
+
+    public class Response<T> : BaseResponse
+    {
+        public T Data { set; get; }
+    }
+
+    public class ListResponse<T> : BaseResponse
+    {
+        public List<T> Data { set; get; }
+    }
+
 
     public enum StatusEnum
     {

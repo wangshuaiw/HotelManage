@@ -1,0 +1,6 @@
+<!--pages/loginerror/loginerror.wxml-->
+<view class='container'>
+  <text>登录失败</text>
+  <text>网络问题，无法登录服务器，请先关闭小程序，稍后再试！</text>
+  <text>右上角有小程序关闭按钮</text>
+</view>

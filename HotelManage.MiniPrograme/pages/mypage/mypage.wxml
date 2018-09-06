@@ -1,0 +1,23 @@
+<!--pages/mypage/mypage.wxml-->
+<view class="container">
+  <view class="userinfo">
+      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+      <text class="userinfo-nickname">{{userInfo.nickName}}</text>
+  </view>
+  <view class='myhotel'>
+    <button wx:if="{{!hasHotel}}" bindtap="addHotel">添加宾馆</button>
+    <block wx:else>
+    <text>我的宾馆:{{userInfo.nickName}}的宾馆</text>
+    <text decode="{{true}}" >地&emsp;&emsp;址：</text>
+    </block>
+  </view>
+
+  <view class='myhotel'>
+    <text>房间：</text>
+    <text>101--大床房</text>
+    <text>102--标准件</text>
+    <text>103--三人间</text>
+  </view>
+</view>
+  
+
