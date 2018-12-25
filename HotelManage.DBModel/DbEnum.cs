@@ -16,4 +16,11 @@ namespace HotelManage.DBModel
         Update = 2,
         Delete = 3
     }
+
+    public enum RoomStatus
+    {
+        Reserved = 1,
+        Checkin = 2,
+        Ckeckout = 3
+    }
 }

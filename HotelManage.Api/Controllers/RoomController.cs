@@ -2,21 +2,32 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HotelManage.Common;
 using HotelManage.DBModel;
 using HotelManage.Interface;
 using HotelManage.ViewModel.ApiVM;
+using HotelManage.ViewModel.ApiVM.RequestVM;
+using HotelManage.ViewModel.ApiVM.ResponseVM;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace HotelManage.Api.Controllers
 {
+    [Authorize]
     public class RoomController : Controller
     {
-        public IRoomHander Hander { get; }
+        private IConfiguration Configuration { get; }
+        private IRoomHander Hander { get; }
+        private IHotelEnumHander EnumHander { get; }
 
-        public RoomController(IRoomHander hander)
+        public RoomController(IConfiguration config, IRoomHander hander, IHotelEnumHander enumHander)
         {
+            Configuration = config;
             Hander = hander;
+            EnumHander = enumHander;
         }
 
         /// <summary>
@@ -24,15 +35,27 @@ namespace HotelManage.Api.Controllers
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        [HttpPost]
-        public async Task<ListResponse<Room>> GetRooms([FromBody]dynamic obj)
+        [HttpGet]
+        public async Task<ListResponse<RoomResponseExt>> GetRooms(int hotelId)
         {
-            int hotelId = obj.hotelId;
-            return new ListResponse<Room>()
+            var rooms = await Task.Run(() => { return Hander.GetRooms(hotelId); });
+            var result = rooms.Select(r => new RoomResponseExt()
+            {
+                Id = r.Id,
+                HotelId = r.HotelId,
+                RoomNo = r.RoomNo,
+                RoomType = r.RoomType,
+                Remark = r.Remark,
+                IsDel = r.IsDel,
+                roomTypeName = EnumHander.GetName(r.RoomType),
+                CreateTime = r.CreateTime,
+                UpdateTime = r.UpdateTime
+            }).ToList();
+            return new ListResponse<RoomResponseExt>()
             {
                 Status=StatusEnum.Success,
                 Massage="获取房间成功",
-                Data = await Hander.GetRooms(hotelId)
+                Data = result
             };
         }
 
@@ -42,26 +65,30 @@ namespace HotelManage.Api.Controllers
         /// <param name="room"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<Response<Room>> Create([FromBody]Room room)
+        public async Task<Response<RoomResponseExt>> Add([FromBody]Room room)
         {
-            var r = await Hander.Create(room);
-            if(r==null)
+            string manager = HttpContext.User.Identity.Name;
+            
+            room.IsDel = false;
+
+            Room r = await Task.Run(() => { return Hander.Add(room, manager); });
+            return new Response<RoomResponseExt>()
             {
-                return new Response<Room>()
+                Status = StatusEnum.Success,
+                Massage = "添加成功",
+                Data = new RoomResponseExt()
                 {
-                    Status = StatusEnum.ValidateModelError,
-                    Massage = "数据错误"
-                };
-            }
-            else
-            {
-                return new Response<Room>()
-                {
-                    Status = StatusEnum.Success,
-                    Massage = "添加成功",
-                    Data = r
-                };
-            }
+                    Id = r.Id,
+                    HotelId = r.HotelId,
+                    RoomNo = r.RoomNo,
+                    RoomType = r.RoomType,
+                    Remark = r.Remark,
+                    IsDel = r.IsDel,
+                    roomTypeName = EnumHander.GetName(r.RoomType),
+                    CreateTime = r.CreateTime,
+                    UpdateTime = r.UpdateTime
+                }
+            };
         }
 
         /// <summary>
@@ -72,7 +99,9 @@ namespace HotelManage.Api.Controllers
         [HttpPost]
         public async Task<BaseResponse> Updete([FromBody]Room room)
         {
-            await Hander.Update(room);
+            string manager = HttpContext.User.Identity.Name;
+
+            await Task.Run(() => { Hander.Update(room, manager); });
             return new BaseResponse()
             {
                 Status = StatusEnum.Success,
@@ -88,12 +117,16 @@ namespace HotelManage.Api.Controllers
         [HttpPost]
         public async Task<BaseResponse> Delete([FromBody]Room room)
         {
-            await Hander.Delete(room);
+            string manager = HttpContext.User.Identity.Name;
+
+            await Task.Run(() => { Hander.Delete(room, manager); });
             return new BaseResponse()
             {
                 Status = StatusEnum.Success,
                 Massage = "删除成功"
             };
         }
+
+
     }
 }

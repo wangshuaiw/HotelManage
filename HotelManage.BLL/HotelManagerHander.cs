@@ -34,20 +34,22 @@ namespace HotelManage.BLL
         /// </summary>
         /// <param name="manager"></param>
         /// <returns></returns>
-        public async Task<string> Create(Hotelmanager manager,string password)
+        public KeyValuePair<bool, string> Add(Hotelmanager manager,string password)
         {
             Hotel hotel = HotelContext.Hotel.FirstOrDefault(h => !h.IsDel.Value && h.Id == manager.HotelId);
             if (hotel==null)
             {
-                return "传入的宾馆有误";
+                return new KeyValuePair<bool, string>(false, "传入的宾馆有误");
             }
             string pwd = PwdHelper.GetPassword(password, hotel.Salt);
             if(pwd!=hotel.HotelPassword)
             {
-                return "密码错误";
+                return new KeyValuePair<bool, string>(false, "密码错误");
             }
-            await base.Create(manager);
-            return "添加成功";
+            base.Create(manager);
+            return new KeyValuePair<bool, string>(true, "添加成功");
         }
+
+        
     }
 }

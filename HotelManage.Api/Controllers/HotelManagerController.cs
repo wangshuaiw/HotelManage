@@ -5,11 +5,14 @@ using System.Threading.Tasks;
 using HotelManage.DBModel;
 using HotelManage.Interface;
 using HotelManage.ViewModel.ApiVM;
+using HotelManage.ViewModel.ApiVM.RequestVM;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelManage.Api.Controllers
 {
+    [Authorize]
     [Produces("application/json")]
     public class HotelManagerController : Controller
     {
@@ -26,16 +29,24 @@ namespace HotelManage.Api.Controllers
         /// <param name="hotelmanager"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<Response<Hotelmanager>> Create([FromBody]Hotelmanager hotelmanager)
+        public async Task<Response<Hotelmanager>> Add([FromBody]AddManager request)
         {
-            var result = await Hander.Create(hotelmanager);
-            if(result!=null)
+            Hotelmanager manager = new Hotelmanager()
+            {
+                HotelId = request.HotelId,
+                WxOpenId = request.WxOpenId,
+                WxUnionId = request.WxUnionId,
+                Role = (int)ManagerRole.Assist,
+                IsDel = false
+            };
+            var result = await Task.Run(() => { return Hander.Add(manager, request.Password); });
+            if(result.Key)
             {
                 return new Response<Hotelmanager>()
                 {
                     Status = StatusEnum.Success,
                     Massage = "添加成功",
-                    Data = result
+                    Data = manager
                 };
             }
             else
@@ -43,7 +54,7 @@ namespace HotelManage.Api.Controllers
                 return new Response<Hotelmanager>()
                 {
                     Status = StatusEnum.ValidateModelError,
-                    Massage = "数据错误"
+                    Massage = result.Value
                 };
             }
         }

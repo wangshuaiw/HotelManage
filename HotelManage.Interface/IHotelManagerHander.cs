@@ -21,6 +21,8 @@ namespace HotelManage.Interface
         /// <param name="manager"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        Task<string> Create(Hotelmanager manager, string password);
+        KeyValuePair<bool, string> Add(Hotelmanager manager, string password);
+
+        
     }
 }

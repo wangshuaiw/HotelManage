@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace HotelManage.Api.Controllers
 {
@@ -14,23 +20,25 @@ namespace HotelManage.Api.Controllers
     {
         private readonly ILogger<ValuesController> logger;
 
-        private readonly IHttpContextAccessor httpContext;
+        private  IConfiguration Configuration { get; }
 
-        public ValuesController(ILogger<ValuesController> _logger, IHttpContextAccessor _context)
+        public ValuesController(ILogger<ValuesController> _logger, IConfiguration configuration)
         {
             logger = _logger;
-            httpContext = _context;
+            Configuration = configuration;
         }
 
         // GET api/values
         [HttpGet]
         public IEnumerable<string> Get()
         {
+            var temp = HttpContext.User.Identity.Name;
             return new string[] { "value1", "value2" };
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
+        [Authorize]
         public string Get(int id)
         {
             return "value";
@@ -53,5 +61,7 @@ namespace HotelManage.Api.Controllers
         public void Delete(int id)
         {
         }
+
+        
     }
 }

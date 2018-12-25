@@ -1,4 +1,5 @@
 // pages/status/status.js
+var util = require('../../utils/util.js');
 const app = getApp()
 Page({
 
@@ -6,18 +7,100 @@ Page({
    * 页面的初始数据
    */
   data: {
-  
+    hotel: {},
+    date:null,
+    room:{},
+    isEdit:false,
+    certTypes:[],
+    selectCertType:null,
+    planedCheckinDate:null,
+    planedCheckinTime:null,
+    planedCheckoutDate:null,
+    planedCheckoutTime:null
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    //if (!app.globalData.userInfo){
-    //  wx.switchTab({
-    //    url: '../mypage/mypage'
-    //  })
-    //}
+    if (app.globalData.hotel){
+      this.setData({
+        hotel: app.globalData.hotel,
+        date:options.date
+      });
+      //获取房间信息
+      wx.request({
+        url: app.globalData.url + 'RoomCheck/GetRoomStatus',
+        method: 'GET',
+        header: {
+          "Authorization": "Bearer " + app.globalData.token.token
+        },
+        data: {
+          roomId: options.roomId,
+          checkId:options.id,
+          date:options.date
+        },
+        success: res => {
+          if (res.data && res.data.status && res.data.status == 1 && res.data.data) {
+            this.setData({
+              room: res.data.data
+            })
+          } else {
+            wx.showToast({
+              title: '网络问题，请稍后再试',
+              icon: 'none'
+            });
+          }
+        },
+        fail: res => {
+          wx.showToast({
+            title: '网络问题，请稍后再试',
+            icon: 'none'
+          });
+        }
+      })
+      //获取证件类型
+      wx.request({
+        url: app.globalData.url + 'HotelEnum/GetCertTypes',
+        method: 'GET',
+        header: {
+          "Authorization": "Bearer " + app.globalData.token.token
+        },
+        success: res => {
+          if (res.data && res.data.status && res.data.status == 1 && res.data.data) {
+            var types = new Array();
+            var selectType;
+            for (var i = 0; i < res.data.data.length; i++) {
+              var thisType = { "key": res.data.data[i].fullKey, "value": res.data.data[i].name };
+              types.push(thisType);
+              if (thisType.key =="CertType/IdCard"){
+                selectType = thisType;
+              }
+            }
+            this.setData({
+              certTypes: types,
+              selectCertType: selectType,
+            })
+          } else {
+            wx.showToast({
+              title: '网络问题，请稍后再试',
+              icon: 'none'
+            });
+          }
+        },
+        fail: res => {
+          wx.showToast({
+            title: '网络问题，请稍后再试',
+            icon: 'none'
+          });
+        }
+      })
+    }else{
+      wx.showToast({
+        title: '系统问题，请重启小程序',
+        icon: 'none'
+      });
+    }
   },
 
   /**
@@ -66,5 +149,119 @@ Page({
    */
   onShareAppMessage: function () {
   
+  },
+
+  btnReserve:function(e){
+    this.data.room.status=1;
+    this.data.room.guests = [{ isEdit:true}]
+    var defaultPlanedCheckoutDate = new Date(this.data.date);
+    defaultPlanedCheckoutDate.setDate(defaultPlanedCheckoutDate.getDate() + 1);
+    this.setData({
+      room:this.data.room,
+      isEdit:true,
+      planedCheckinDate: this.data.date,
+      planedCheckinTime: util.formatOnlyHourMinite(new Date()),
+      planedCheckoutDate: util.formatDate(defaultPlanedCheckoutDate),
+      planedCheckoutTime:"12:00"
+    })
+  },
+  saveGuest:function(e){
+    //console.log(e);
+    if (!e.detail.value.name){
+      wx.showToast({
+        title: '请填写姓名',
+        icon: 'none'
+      })
+      return;
+    }
+    if (!e.detail.value.certId){
+      wx.showToast({
+        title: '请填写证件号码',
+        icon: 'none'
+      })
+      return;
+    }
+
+    var i = e.target.dataset.index;
+    this.data.room.guests[i].name = e.detail.value.name;
+    this.data.room.guests[i].certType = this.data.selectCertType.key;
+    this.data.room.guests[i].certTypeName = this.data.selectCertType.value;
+    this.data.room.guests[i].certId = e.detail.value.certId;
+    this.data.room.guests[i].mobile = e.detail.value.mobile;
+    this.data.room.guests[i].isEdit = false;
+    this.setData({
+      room:this.data.room
+    });
+  },
+  btnCancel:function(e){
+    //console.log(e);
+    var i = e.target.dataset.index;
+    if (this.data.room.guests[i].id > 0){
+      this.data.room.guests[i].isEdit = false;
+    }else{
+      this.data.room.guests.splice(index, 1);
+    }
+    this.setData({
+      room:this.data.room
+    })
+  },
+  addGuest:function(e){
+    for (var i = 0; i < this.data.room.guests.length; i++) {
+      if (this.data.room.guests[i].isEdit == true) {
+        wx.showToast({
+          title: '请先保存正在编辑的入住人',
+          icon: 'none'
+        })
+        return
+      }
+    }
+    this.data.room.guests.push({isEdit:true}),
+    this.setData({
+      room:this.data.room
+    })
+  },
+  saveCheck:function(e){
+    for (var i = 0; i < this.data.room.guests.length; i++) {
+      if (this.data.room.guests[i].isEdit == true) {
+        wx.showToast({
+          title: '请先保存正在编辑的入住人',
+          icon: 'none'
+        })
+        return
+      }
+    }
+    if (this.data.room.guests.length<=0){
+      wx.showToast({
+        title: '请先添加入住人',
+        icon: 'none'
+      })
+      return
+    }
+  },
+
+  certTypeChange:function(e){
+    this.setData({
+      selectCertType: this.data.certTypes[e.detail.value]
+    })
+  },
+  planedCheckinDateChange:function(e){
+    this.setData({
+      planedCheckinDate: e.detail.value
+    })
+  },
+  planedCheckinTimeChange:function(e){
+    this.setData({
+      planedCheckinTime: e.detail.value
+    })
+  },
+  planedCheckoutDateChange:function(e){
+    this.setData({
+      planedCheckoutDate:e.detail.value
+    })
+  },
+  planedCheckoutTimeChange:function(e){
+    this.setData({
+      planedCheckoutTime:e.detail.value
+    })
   }
 })

@@ -14,6 +14,8 @@ namespace HotelManage.ViewModel.ApiVM.RequestVM
 
         public string Address { set; get; }
 
+        public string Remark { get; set; }
+
         public string WxOpenId { set; get; }
 
         public string WxUnionId { set; get; }

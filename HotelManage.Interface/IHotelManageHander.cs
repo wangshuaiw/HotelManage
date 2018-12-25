@@ -11,13 +11,13 @@ namespace HotelManage.Interface
     {
         hotelmanageContext HotelContext { get; }
 
-        Task<T> Get(Expression<Func<T, bool>> predicate);
+        T Get(Expression<Func<T, bool>> predicate);
 
-        Task<List<T>> GetList(Expression<Func<T, bool>> predicate);
+        List<T> GetList(Expression<Func<T, bool>> predicate);
 
-        Task<T> Create(T t);
+        T Create(T t);
 
-        Task Update(T t, params string[] properties);
+        void Update(T t, params string[] properties);
 
         //Task Delete(T t);
     }

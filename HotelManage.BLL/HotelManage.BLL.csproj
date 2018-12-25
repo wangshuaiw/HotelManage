@@ -7,6 +7,7 @@
   <ItemGroup>
     <ProjectReference Include="..\HotelManage.Common\HotelManage.Common.csproj" />
     <ProjectReference Include="..\HotelManage.Interface\HotelManage.Interface.csproj" />
+    <ProjectReference Include="..\HotelManageViewModel\HotelManage.ViewModel.csproj" />
   </ItemGroup>
 
 </Project>

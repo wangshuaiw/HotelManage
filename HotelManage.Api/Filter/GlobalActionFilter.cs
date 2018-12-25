@@ -8,6 +8,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using HotelManage.ViewModel.ApiVM;
+using HotelManage.DBModel;
+using HotelManage.Common;
 
 namespace HotelManage.Api.Filter
 {
@@ -19,6 +21,7 @@ namespace HotelManage.Api.Filter
         private readonly ILogger<GlobalActionFilter> logger;
         private IConfiguration configuration;
 
+        bool monitorProcessOverTime;
         int processWarnTime;
 
         public GlobalActionFilter(ILogger<GlobalActionFilter> _logger, IConfiguration _configuration)
@@ -26,6 +29,7 @@ namespace HotelManage.Api.Filter
             logger = _logger;
             configuration = _configuration;
             processWarnTime = configuration.GetValue<int>("AppSetting:ProcessWarnTime");
+            monitorProcessOverTime = configuration.GetValue<bool>("AppSetting:MonitorProcessOverTime");
         }
 
         /// <summary>
@@ -48,9 +52,12 @@ namespace HotelManage.Api.Filter
             }
 
             //开启计时器
-            var stopwach = new Stopwatch();
-            stopwach.Start();
-            context.HttpContext.Items.Add("__GlabolStopwach__", stopwach);
+            if (monitorProcessOverTime)
+            {
+                var stopwach = new Stopwatch();
+                stopwach.Start();
+                context.HttpContext.Items.Add("__GlabolStopwach__", stopwach);
+            }
 
         }
 
@@ -60,14 +67,17 @@ namespace HotelManage.Api.Filter
         /// <param name="context"></param>
         public void OnActionExecuted(ActionExecutedContext context)
         {
-            var httpContext = context.HttpContext;
-            var stopwach = httpContext.Items["__GlabolStopwach__"] as Stopwatch;
-            stopwach.Stop();
-            var time = stopwach.Elapsed;
-
-            if (time.TotalSeconds > processWarnTime)
+            if (monitorProcessOverTime)
             {
-                logger.LogWarning($"{context.ActionDescriptor.DisplayName}执行耗时过长:{time.ToString()}");
+                var httpContext = context.HttpContext;
+                var stopwach = httpContext.Items["__GlabolStopwach__"] as Stopwatch;
+                stopwach.Stop();
+                var time = stopwach.Elapsed;
+
+                if (time.TotalSeconds > processWarnTime)
+                {
+                    logger.LogWarning($"{context.ActionDescriptor.DisplayName}执行耗时过长:{time.ToString()}");
+                }
             }
         }
     }

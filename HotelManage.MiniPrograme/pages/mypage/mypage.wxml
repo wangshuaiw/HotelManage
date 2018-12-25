@@ -4,24 +4,101 @@
       <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
       <text class="userinfo-nickname">{{userInfo.nickName}}</text>
   </view>
-  <view class="myhotel {{editHotel ? 'hide' : 'show'}}">
+  <view class="myhotel {{(editHotel==1||editHotel==2) ? 'hide' : 'show'}}">
     <button wx:if="{{!hasHotel}}" bindtap="addHotel">添加宾馆</button>
     <block wx:else>
-    <text>我的宾馆:{{userInfo.nickName}}的宾馆</text>
-    <text decode="{{true}}" >地&emsp;&emsp;址：</text>
+      <text>我的宾馆:{{myHotel.name}}</text>
+      <text decode="{{true}}" >地&emsp;&emsp;址：{{fullAddress}}</text>
+      <button bindtap='updateHotel'>修改</button>
+      <button wx:if="{{canShare}}" open-type='share'>邀请他人共同管理</button>
     </block>
   </view>
-  <view class="{{editHotel ? 'show' : 'hide'}}">
-    <view>地区</view>
-    
+  <view class="{{(editHotel==1||editHotel==2) ? 'show' : 'hide'}}">
+    <form bindsubmit="formSubmit">
+      <!--<view>
+        <view>地区：</view>
+        
+      </view>-->
+      <view>
+        <view>宾馆名称:</view>
+        <input name="name" placeholder="请输入宾馆名称" value='{{myHotel.name}}'></input>
+      </view>
+      <view>
+        <view>地址:</view>
+        <picker name="region" mode="region" bindchange="bindRegionChange" value="{{region}}">
+          <view>
+            {{region[0]}}，{{region[1]}}，{{region[2]}}
+          </view>
+        </picker>
+        <input name="address" placeholder="请输入宾馆详细地址" value='{{myHotel.address}}'></input>
+      </view>
+      <view>
+        <view>管理密码:</view>
+        <input name="hotelPassword" password="true" placeholder="请输入宾馆管理密码"></input>
+      </view>
+      <view wx:if="{{editHotel==1}}">
+        <view>确认管理密码:</view>
+        <input name="hotelPassword2" password="true" placeholder="请再次输入宾馆管理密码"></input>
+      </view>
+      <view>
+        <view>宾馆特色:</view>
+        <textarea name="remark" style='height:120rpx' placeholder="输入宾馆特色，如：干净卫生，价格实惠" value='{{myHotel.remark}}'></textarea>
+      </view>
+      <view>
+        <button formType="submit">保存</button>
+        <button bindtap="editCancel" >取消</button>
+      </view>
+    </form>
+  </view>
+  <view wx:if="{{isShare}}">
+    <form bindsubmit="addManager">
+      <view>宾馆名称:{{myHotel.name}}</view>
+      <view>地址:{{fullAddress}}</view>
+      <view>
+        <view>管理密码:</view>
+        <input name="hotelPassword" password="true" placeholder="请输入宾馆管理密码"></input>
+      </view>
+      <view>
+        <button formType="submit">我要管理</button>
+        <button bindtap="cancelAddManager">不要管理</button>
+      </view>
+    </form>
   </view>
 
-  <view class='myhotel'>
-    <text>房间：</text>
-    <text>101--大床房</text>
-    <text>102--标准件</text>
-    <text>103--三人间</text>
+  <view>
+    <view>房间:</view>
+    <view wx:for="{{rooms}}" wx:key="id">
+      <view>{{item.roomNo}}</view>
+      <view>{{item.roomTypeName}}</view>
+      <button plain="true" bindtap="updateRoom" data-item="{{item}}">修改</button>
+      <button plain="true" bindtap="deleteRoom" data-item="{{item}}">删除</button>
+    </view>
+    <button wx:if="{{hasHotel}}" bindtap="addRoom">添加房间</button>
   </view>
+
+  <view wx:if="{{editRoom==1||editRoom==2}}">
+    <form bindsubmit="editRoomSubmit">
+      <view>
+        <view>房间编号:</view>
+        <input name="roomNo" placeholder="请输入房间编号" value='{{selectRoom.roomNo}}'></input>
+      </view>
+      <view>
+        <view>房间类型:</view>
+        <picker name="roomType" bindchange="bindRoomTypeChange" range="{{roomTypes}}" range-key="value">
+          <view>{{selectRoomType.value}}</view>
+        </picker>
+      </view>
+      <view>
+        <view>备注说明:</view>
+        <input name="remark" placeholder="房间其他信息可写在这里" value='{{selectRoom.remark}}'></input>
+      </view>
+      <view>
+          <button formType="submit">保存</button>
+          <button bindtap="cancelEditRoom">取消</button>
+      </view>
+    </form>
+  </view>
+
 </view>
   
 

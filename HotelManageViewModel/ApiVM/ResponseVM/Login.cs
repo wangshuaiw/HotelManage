@@ -10,5 +10,11 @@ namespace HotelManage.ViewModel.ApiVM.ResponseVM
         public string JwtToken { set; get; }
 
         public Hotel Hotel { set; get; }
+
+        public string OpenId { set; get; }
+
+        public string UnionId { set; get; }
+
+        public int Role { set; get; }
     }
 }

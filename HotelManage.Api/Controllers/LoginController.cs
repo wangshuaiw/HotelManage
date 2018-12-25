@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using HotelManage.Common;
 using HotelManage.DBModel;
 using HotelManage.Interface;
@@ -23,13 +24,15 @@ namespace HotelManage.Api.Controllers
         public IConfiguration Configuration { get; }
         public ILogger<LoginController> Logger { get; }
         public IHotelManagerHander Hander { get; }
+        public IHotelHander HotelHander { get; }
 
-        public LoginController(IConfiguration configuration, ILogger<LoginController> logger, IHotelManagerHander hander)
+        public LoginController(IConfiguration configuration, ILogger<LoginController> logger, IHotelManagerHander hander,IHotelHander hotelHander)
 
         {
             Configuration = configuration;
             Logger = logger;
             Hander = hander;
+            HotelHander = hotelHander;
         }
 
         public IActionResult Index()
@@ -38,7 +41,7 @@ namespace HotelManage.Api.Controllers
         }
 
         [HttpPost]
-        public Response<Login> WxLogin([FromBody]dynamic request)
+        public async Task<Response<Login>> WxLogin([FromBody]dynamic request)
         {
             string wxcode = request.wxcode;
 
@@ -46,17 +49,20 @@ namespace HotelManage.Api.Controllers
             string appid = Configuration.GetValue<string>("AppSetting:WxAppid");
             string secret = Configuration.GetValue<string>("AppSetting:WxSecret");
             string uri = $"https://api.weixin.qq.com/sns/jscode2session?appid={appid}&secret={secret}&js_code={wxcode}&grant_type=authorization_code";
-            string response = HttpHelper.HttpJsonGetRequest(uri);
+            string response = await Task.Run(() => { return HttpHelper.HttpJsonGetRequest(uri); });
             if (!string.IsNullOrEmpty(response))
             {
                 WxLoginInfo wxInfo = JsonConvert.DeserializeObject<WxLoginInfo>(response);
 
                 if (wxInfo != null && !string.IsNullOrEmpty(wxInfo.openid))
                 {
+                    resultData.OpenId = wxInfo.openid;
+                    resultData.UnionId = wxInfo.unionid;
+
                     var claims = new Claim[] {
-                        //new Claim(ClaimTypes.Name, "John"),
-                        new Claim(JwtRegisteredClaimNames.NameId, wxInfo.openid),
-                        new Claim(JwtRegisteredClaimNames.UniqueName,string.IsNullOrEmpty(wxInfo.unionid)?"":wxInfo.unionid)
+                        new Claim(ClaimTypes.Name, wxInfo.openid),
+                        //new Claim(JwtRegisteredClaimNames.NameId, wxInfo.openid),
+                        //new Claim(JwtRegisteredClaimNames.UniqueName,string.IsNullOrEmpty(wxInfo.unionid)?"":wxInfo.unionid)
                     };
 
                     var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("AppSetting:JwtSigningKey")));
@@ -71,9 +77,24 @@ namespace HotelManage.Api.Controllers
 
                     resultData.JwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-                    //获取对应的宾馆 todo
-                    var hotel = Hander.GetHotelByOpenId(wxInfo.openid);
-                    resultData.Hotel = hotel;
+                    //获取对应的宾馆
+                    //var hotel = Hander.GetHotelByOpenId(wxInfo.openid);
+
+
+                    var manager = await Task.Run(() =>
+                    {
+                        return Hander.Get(m => m.WxOpenId == wxInfo.openid && m.IsDel.HasValue && !m.IsDel.Value);
+                    });
+                    if(manager!=null)
+                    {
+                        resultData.Role = manager.Role;
+                        var hotel = await Task.Run(() => { return HotelHander.Get(h => h.Id == manager.HotelId); });
+                        resultData.Hotel = hotel;
+                    }
+                    else
+                    {
+                        resultData.Role = -1;
+                    }
                 }
                 else
                 {
@@ -86,5 +107,7 @@ namespace HotelManage.Api.Controllers
             }
             return new Response<Login>() { Status = StatusEnum.Success, Massage = "登录成功", Data = resultData };
         }
+
+        
     }
 }

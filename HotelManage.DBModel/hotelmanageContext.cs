@@ -15,25 +15,55 @@ namespace HotelManage.DBModel
         {
         }
 
+        public virtual DbSet<Guest> Guest { get; set; }
         public virtual DbSet<Hotel> Hotel { get; set; }
         public virtual DbSet<Hotelenum> Hotelenum { get; set; }
         public virtual DbSet<Hotelmanager> Hotelmanager { get; set; }
         public virtual DbSet<Operationlog> Operationlog { get; set; }
         public virtual DbSet<Room> Room { get; set; }
-        public virtual DbSet<Roomhistorycheckin> Roomhistorycheckin { get; set; }
-        public virtual DbSet<Roomorder> Roomorder { get; set; }
-        public virtual DbSet<Roomstatus> Roomstatus { get; set; }
+        public virtual DbSet<Roomcheck> Roomcheck { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseMySql("server=127.0.0.1;userid=root;pwd=;port=3306;database=hotelmanage;treattinyasboolean=true;sslmode=none;");
+                //optionsBuilder.UseMySql("server=127.0.0.1;userid=root;database=hotelmanage;treattinyasboolean=true;SslMode=None;AllowPublicKeyRetrieval=True;");
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Guest>(entity =>
+            {
+                entity.ToTable("guest");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("ID")
+                    .HasColumnType("bigint(20)");
+
+                entity.Property(e => e.CertId).HasColumnType("varchar(45)");
+
+                entity.Property(e => e.CertType).HasColumnType("varchar(45)");
+
+                entity.Property(e => e.CheckId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.CreateTime)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
+
+                entity.Property(e => e.IsDel)
+                    .HasColumnType("bit(1)")
+                    .HasDefaultValueSql("'b\\'0\\''");
+
+                entity.Property(e => e.Mobile).HasColumnType("varchar(45)");
+
+                entity.Property(e => e.Name).HasColumnType("varchar(45)");
+
+                entity.Property(e => e.UpdateTime)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
+            });
+
             modelBuilder.Entity<Hotel>(entity =>
             {
                 entity.ToTable("hotel");
@@ -118,6 +148,8 @@ namespace HotelManage.DBModel
                     .HasColumnType("bit(1)")
                     .HasDefaultValueSql("'b\\'0\\''");
 
+                entity.Property(e => e.Role).HasColumnType("int(4)");
+
                 entity.Property(e => e.UpdateTime)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
@@ -130,10 +162,6 @@ namespace HotelManage.DBModel
                 entity.Property(e => e.WxUnionId)
                     .HasColumnName("WxUnionID")
                     .HasColumnType("varchar(45)");
-
-                entity.Property(e => e.Role)
-                    .IsRequired()
-                    .HasColumnType("int(4)");
             });
 
             modelBuilder.Entity<Operationlog>(entity =>
@@ -154,10 +182,6 @@ namespace HotelManage.DBModel
                     .IsRequired()
                     .HasColumnType("varchar(50)");
 
-                entity.Property(e => e.TableName)
-                    .IsRequired()
-                    .HasColumnType("varchar(20)");
-
                 entity.Property(e => e.IsDel)
                     .HasColumnType("bit(1)")
                     .HasDefaultValueSql("'b\\'0\\''");
@@ -165,6 +189,10 @@ namespace HotelManage.DBModel
                 entity.Property(e => e.NewValue).HasColumnType("varchar(200)");
 
                 entity.Property(e => e.OldValue).HasColumnType("varchar(200)");
+
+                entity.Property(e => e.TableName)
+                    .IsRequired()
+                    .HasColumnType("varchar(20)");
 
                 entity.Property(e => e.Type).HasColumnType("int(11)");
 
@@ -206,42 +234,9 @@ namespace HotelManage.DBModel
                     .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
             });
 
-            modelBuilder.Entity<Roomhistorycheckin>(entity =>
+            modelBuilder.Entity<Roomcheck>(entity =>
             {
-                entity.ToTable("roomhistorycheckin");
-
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("bigint(20)");
-
-                entity.Property(e => e.CreateTime)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
-
-                entity.Property(e => e.Date).HasColumnType("date");
-
-                entity.Property(e => e.OccupantCertType).HasColumnType("varchar(20)");
-
-                entity.Property(e => e.OccupantId)
-                    .HasColumnName("OccupantID")
-                    .HasColumnType("varchar(20)");
-
-                entity.Property(e => e.OccupantMobile).HasColumnType("varchar(20)");
-
-                entity.Property(e => e.OccupantName).HasColumnType("varchar(20)");
-
-                entity.Property(e => e.RoomId)
-                    .HasColumnName("RoomID")
-                    .HasColumnType("int(11)");
-
-                entity.Property(e => e.UpdateTime)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
-            });
-
-            modelBuilder.Entity<Roomorder>(entity =>
-            {
-                entity.ToTable("roomorder");
+                entity.ToTable("roomcheck");
 
                 entity.Property(e => e.Id)
                     .HasColumnName("ID")
@@ -261,15 +256,13 @@ namespace HotelManage.DBModel
                     .HasColumnType("bit(1)")
                     .HasDefaultValueSql("'b\\'0\\''");
 
-                entity.Property(e => e.OccupantCertType).HasColumnType("varchar(20)");
+                entity.Property(e => e.PlanedCheckinTime).HasColumnType("datetime");
 
-                entity.Property(e => e.OccupantId)
-                    .HasColumnName("OccupantID")
-                    .HasColumnType("varchar(20)");
+                entity.Property(e => e.PlanedCheckoutTime).HasColumnType("datetime");
 
-                entity.Property(e => e.OccupantMobile).HasColumnType("varchar(20)");
+                entity.Property(e => e.Prices).HasColumnType("decimal(8,2)");
 
-                entity.Property(e => e.OccupantName).HasColumnType("varchar(20)");
+                entity.Property(e => e.Remark).HasColumnType("varchar(100)");
 
                 entity.Property(e => e.ReserveTime).HasColumnType("datetime");
 
@@ -277,30 +270,7 @@ namespace HotelManage.DBModel
                     .HasColumnName("RoomID")
                     .HasColumnType("int(11)");
 
-                entity.Property(e => e.UpdateTime)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
-            });
-
-            modelBuilder.Entity<Roomstatus>(entity =>
-            {
-                entity.ToTable("roomstatus");
-
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("bigint(20)");
-
-                entity.Property(e => e.CreateTime)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
-
-                entity.Property(e => e.Date).HasColumnType("date");
-
-                entity.Property(e => e.Prices).HasColumnType("decimal(8,2)");
-
-                entity.Property(e => e.RoomId)
-                    .HasColumnName("RoomID")
-                    .HasColumnType("int(11)");
+                entity.Property(e => e.Status).HasColumnType("int(4)");
 
                 entity.Property(e => e.UpdateTime)
                     .HasColumnType("datetime")

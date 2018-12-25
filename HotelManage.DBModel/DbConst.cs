@@ -7,5 +7,7 @@ namespace HotelManage.DBModel
     public class DbConst
     {
         public static string RoomTypeEnumClass = "RoomType";
+
+        public static string CertTypeEnumClass = "CertType";
     }
 }

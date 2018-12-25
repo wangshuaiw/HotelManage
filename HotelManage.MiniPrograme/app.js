@@ -14,7 +14,7 @@ App({
         // 发送 res.code 到后台换取 openId, sessionKey, unionId
         if(res.code){
           wx.request({
-            url: 'http://localhost:31289/api/login/wxlogin',
+            url: this.globalData.url +'login/wxlogin',
             method:"POST",
             data:{
               wxcode: res.code
@@ -23,8 +23,16 @@ App({
               if (r.statusCode&&r.statusCode==200&&r.data){
                 var response=r.data;
                 if (response.status==1&&response.data){
-                  this.globalData.token = response.data.jwtToken;
                   this.globalData.hotel = response.data.hotel;
+                  this.globalData.token = { 
+                    "token": response.data.jwtToken,
+                    "openId": response.data.openId,
+                    "unionId": response.data.unionId,
+                    "role":response.data.role
+                  };
+                  if (this.globalDataReadyCallback){
+                    this.globalDataReadyCallback(this.globalData);
+                  }
                 }else{
                   wx.navigateTo({
                     url: '/pages/loginerror/loginerror',
@@ -78,6 +86,7 @@ App({
     })
   },
   globalData: {
+    url:'http://localhost:31290/api/',
     userInfo: null,
     hotel: null,
     token:null

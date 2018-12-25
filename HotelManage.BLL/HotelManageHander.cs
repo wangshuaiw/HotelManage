@@ -1,6 +1,7 @@
 ﻿using HotelManage.Common;
 using HotelManage.DBModel;
 using HotelManage.Interface;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,27 +20,42 @@ namespace HotelManage.BLL
             HotelContext = context;
         }
 
-        public async Task<T> Create(T t)
+        public T Create(T t)
         {
-            await HotelContext.AddAsync<T>(t);
-            await HotelContext.SaveChangesAsync();
+            HotelContext.Add<T>(t);
+            HotelContext.SaveChanges();
             return t;
         }
 
-        public async Task<T> Get(Expression<Func<T, bool>> predicate)
+        public T Get(Expression<Func<T, bool>> predicate)
         {
-            return await HotelContext.FindAsync<T>(predicate);
+            return HotelContext.Set<T>().FirstOrDefault(predicate);
         }
 
-        public async Task<List<T>> GetList(Expression<Func<T, bool>> predicate)
+        public List<T> GetList(Expression<Func<T, bool>> predicate)
         {
-            return await HotelContext.Set<T>().Where(predicate).ToAsyncEnumerable().ToList();
+            return HotelContext.Set<T>().Where(predicate).ToList();
         }
 
-        public async Task Update(T t, params string[] properties)
+        //更新
+        public void Update(T t, params string[] properties)
         {
-            var entry = EFHelper.GetEntry<T>(HotelContext, t, properties);
-            await HotelContext.SaveChangesAsync();
+            var entry = HotelContext.Entry<T>(t);
+            //entry.State = EntityState.Unchanged;  //当前面有查询的时候此处会报错！！！
+            foreach (var p in properties)
+            {
+                entry.Property(p).IsModified = true;
+            }
+            entry.State = EntityState.Modified;
+            foreach (var p in entry.Properties)
+            {
+                p.IsModified = false;
+            }
+            foreach (var p in properties)
+            {
+                entry.Property(p).IsModified = true;
+            }
+            HotelContext.SaveChanges();
         }
     }
 }

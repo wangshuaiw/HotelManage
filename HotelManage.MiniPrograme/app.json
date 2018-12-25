@@ -1,22 +1,21 @@
 {
   "pages":[
-    
+    "pages/index/index",
     "pages/mypage/mypage",
     "pages/status/status",
     "pages/room/room",
     "pages/login/login",
-    "pages/index/index",
     "pages/loginerror/loginerror"
   ],
   "window":{
     "backgroundTextStyle":"light",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "我的宾馆",
+    "navigationBarTitleText": "我家的宾馆",
     "navigationBarTextStyle":"black"
   },
   "tabBar": {
     "list": [{
-      "pagePath": "pages/status/status",
+      "pagePath": "pages/index/index",
       "text": "状态",
       "iconPath": "image/ic_index.png",
       "selectedIconPath": "image/ic_index_ck.png"

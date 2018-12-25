@@ -17,6 +17,8 @@ using Microsoft.EntityFrameworkCore;
 using HotelManage.DBModel;
 using HotelManage.Interface;
 using HotelManage.BLL;
+using HotelManage.Api.MiddleWare;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace HotelManage.Api
 {
@@ -36,11 +38,12 @@ namespace HotelManage.Api
             string signingKey = Configuration.GetValue<string>("AppSetting:JwtSigningKey");
             string issuer = Configuration.GetValue<string>("AppSetting:JwtIssuer");
             string audience = Configuration.GetValue<string>("AppSetting:JwtAudience");
+            //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme);
             services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = "JwtBearer";
-                options.DefaultChallengeScheme = "JwtBearer";
-            }).AddJwtBearer("JwtBearer", jwtBearerOptions =>
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, jwtBearerOptions =>
             {
                 jwtBearerOptions.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -57,7 +60,6 @@ namespace HotelManage.Api
 
             services.AddMvc(options=> {
                 options.Filters.Add<GlobalActionFilter>();
-                options.Filters.Add<GlobalExceptionFilter>();
             });
 
             var connection = Configuration.GetValue<string>("ConnectionStrings:HotelManageConnection"); 
@@ -66,19 +68,24 @@ namespace HotelManage.Api
             services.AddScoped<IHotelManagerHander, HotelManagerHander>();
             services.AddScoped<IHotelHander, HotelHander>();
             services.AddScoped<IRoomHander, RoomHander>();
+            services.AddScoped<IHotelEnumHander, HotelEnumHander>();
+            services.AddScoped<IRoomCheckHander, RoomCheckHander>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseAuthentication();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseMiddleware(typeof(ExceptionHandlerMiddleWare));
+
+            app.UseAuthentication();
+
             app.UseMvc(routes => routes.MapRoute("default", "api/{controller=Values}/{action=Get}/{id?}"));
+
         }
     }
 }

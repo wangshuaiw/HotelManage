@@ -15,15 +15,15 @@ namespace HotelManage.Common
 {
     public class EFHelper
     {
-        public static EntityEntry<T> GetEntry<T>(DbContext db, T t,params string[] properties) where T:class
-        {
-            var entry = db.Set<T>().Attach(t);
-            entry.State = EntityState.Unchanged;
-            foreach(var p in properties)
-            {
-                entry.Property(p).IsModified = true;
-            }
-            return entry;
-        }
+        //public static EntityEntry<T> GetEntry<T>(DbContext db, T t,params string[] properties) where T:class
+        //{
+        //    var entry = db.Set<T>().Attach(t);
+        //    entry.State = EntityState.Unchanged;
+        //    foreach(var p in properties)
+        //    {
+        //        entry.Property(p).IsModified = true;
+        //    }
+        //    return entry;
+        //}
     }
 }
