@@ -71,8 +71,9 @@
       <view>{{room.planedCheckoutTime}}</view>
     </view>
     <view wx:if="{{room.status!=0}}">
-      <view>{{room.prices}}</view>
-      <view>{{room.deposit}}</view>
+      <view>价格：{{room.prices}}</view>
+      <view>押金：{{room.deposit}}</view>
+      <view>备注：{{room.remark}}</view>
     </view>
   </view>
 </view>

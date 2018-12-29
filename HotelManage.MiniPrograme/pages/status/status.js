@@ -349,9 +349,9 @@ Page({
       success: res => {
         if (res.data && res.data.status && res.data.status == 1 && res.data.data) {
           this.data.room.id = res.data.data.id;
-          this.data.room.isEdit = false;
           this.setData({
-            room: this.data.room
+            room: this.data.room,
+            isEdit:false
           });
         } else {
           wx.showToast({
