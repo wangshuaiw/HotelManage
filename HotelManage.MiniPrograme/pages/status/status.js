@@ -183,15 +183,103 @@ Page({
     }
 
     var i = e.target.dataset.index;
-    this.data.room.guests[i].name = e.detail.value.name;
-    this.data.room.guests[i].certType = this.data.selectCertType.key;
-    this.data.room.guests[i].certTypeName = this.data.selectCertType.value;
-    this.data.room.guests[i].certId = e.detail.value.certId;
-    this.data.room.guests[i].mobile = e.detail.value.mobile;
-    this.data.room.guests[i].isEdit = false;
-    this.setData({
-      room:this.data.room
-    });
+    if (this.data.room.id && this.data.room.id>0){
+      //原有订单
+      if (this.data.room.guests[i].id && this.data.room.guests[i].id>0){
+        //原有入住人，修改
+        wx.request({
+          url: app.globalData.url + 'Guest/Update',
+          method: 'POST',
+          header: {
+            "Authorization": "Bearer " + app.globalData.token.token
+          },
+          data: {
+            id: this.data.room.guests[i].id,
+            checkId: this.data.room.id,
+            name: e.detail.value.name,
+            certType: this.data.selectCertType.key,
+            certId: e.detail.value.certId,
+            mobile: e.detail.value.mobile
+          },
+          success: res => {
+            if (res.data && res.data.status && res.data.status == 1) {
+              this.data.room.guests[i].name = e.detail.value.name;
+              this.data.room.guests[i].certType = this.data.selectCertType.key;
+              this.data.room.guests[i].certTypeName = this.data.selectCertType.value;
+              this.data.room.guests[i].certId = e.detail.value.certId;
+              this.data.room.guests[i].mobile = e.detail.value.mobile;
+              this.data.room.guests[i].isEdit = false;
+              this.setData({
+                room: this.data.room
+              });
+            } else {
+              wx.showToast({
+                title: '网络问题，请稍后再试',
+                icon: 'none'
+              });
+            }
+          },
+          fail: res => {
+            wx.showToast({
+              title: '网络问题，请稍后再试',
+              icon: 'none'
+            });
+          }
+        })
+      }else{
+        //添加新入住人
+        wx.request({
+          url: app.globalData.url + 'Guest/Add',
+          method: 'POST',
+          header: {
+            "Authorization": "Bearer " + app.globalData.token.token
+          },
+          data: {
+            checkId: this.data.room.id,
+            name: e.detail.value.name,
+            certType: this.data.selectCertType.key,
+            certId: e.detail.value.certId,
+            mobile: e.detail.value.mobile
+          },
+          success: res => {
+            if (res.data && res.data.status && res.data.status == 1 && res.data.data) {
+              this.data.room.guests[i].id = res.data.data.Id
+              this.data.room.guests[i].name = e.detail.value.name;
+              this.data.room.guests[i].certType = this.data.selectCertType.key;
+              this.data.room.guests[i].certTypeName = this.data.selectCertType.value;
+              this.data.room.guests[i].certId = e.detail.value.certId;
+              this.data.room.guests[i].mobile = e.detail.value.mobile;
+              this.data.room.guests[i].isEdit = false;
+              this.setData({
+                room: this.data.room
+              });
+            } else {
+              wx.showToast({
+                title: '网络问题，请稍后再试',
+                icon: 'none'
+              });
+            }
+          },
+          fail: res => {
+            wx.showToast({
+              title: '网络问题，请稍后再试',
+              icon: 'none'
+            });
+          }
+        })
+      }
+    }else{
+      //新增订单
+      this.data.room.guests[i].name = e.detail.value.name;
+      this.data.room.guests[i].certType = this.data.selectCertType.key;
+      this.data.room.guests[i].certTypeName = this.data.selectCertType.value;
+      this.data.room.guests[i].certId = e.detail.value.certId;
+      this.data.room.guests[i].mobile = e.detail.value.mobile;
+      this.data.room.guests[i].isEdit = false;
+      this.setData({
+        room: this.data.room
+      });
+    }
   },
   btnCancel:function(e){
     //console.log(e);
@@ -227,7 +315,7 @@ Page({
           title: '请先保存正在编辑的入住人',
           icon: 'none'
         })
-        return
+        return;
       }
     }
     if (this.data.room.guests.length<=0){
@@ -235,8 +323,50 @@ Page({
         title: '请先添加入住人',
         icon: 'none'
       })
-      return
+      return;
     }
+    if (!e.detail.value.prices || e.detail.value.prices<=0){
+      wx.showToast({
+        title: '请先填写价格',
+        icon: 'none'
+      })
+      return;
+    }
+    this.data.room.reserveTime = this.data.room.status == 1 ? util.formatTime(new Date()) : null;
+    this.data.room.planedCheckinTime = this.data.planedCheckinDate + ' ' + this.data.planedCheckinTime;
+    this.data.room.checkinTime = this.data.room.status == 2 ? util.formatTime(new Date()) : null;
+    this.data.room.planedCheckoutTime = this.data.planedCheckoutDate + ' ' + this.data.planedCheckoutTime;
+    this.data.room.prices = e.detail.value.prices;
+    this.data.room.deposit = e.detail.value.deposit;
+    this.data.room.remark = e.detail.value.remark;
+    wx.request({
+      url: app.globalData.url + 'RoomCheck/ModifyRoomCheck',
+      method: 'POST',
+      header: {
+        "Authorization": "Bearer " + app.globalData.token.token
+      },
+      data: this.data.room,
+      success: res => {
+        if (res.data && res.data.status && res.data.status == 1 && res.data.data) {
+          this.data.room.id = res.data.data.id;
+          this.data.room.isEdit = false;
+          this.setData({
+            room: this.data.room
+          });
+        } else {
+          wx.showToast({
+            title: '网络问题，请稍后再试',
+            icon: 'none'
+          });
+        }
+      },
+      fail: res => {
+        wx.showToast({
+          title: '网络问题，请稍后再试',
+          icon: 'none'
+        });
+      }
+    })
   },
 
   certTypeChange:function(e){

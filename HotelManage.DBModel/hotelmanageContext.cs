@@ -27,7 +27,7 @@ namespace HotelManage.DBModel
         {
             if (!optionsBuilder.IsConfigured)
             {
-                //optionsBuilder.UseMySql("server=127.0.0.1;userid=root;database=hotelmanage;treattinyasboolean=true;SslMode=None;AllowPublicKeyRetrieval=True;");
+                optionsBuilder.UseMySql("server=127.0.0.1;userid=root;database=hotelmanage;treattinyasboolean=true;SslMode=None;AllowPublicKeyRetrieval=True;");
             }
         }
 

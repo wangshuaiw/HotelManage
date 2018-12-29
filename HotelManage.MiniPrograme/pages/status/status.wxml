@@ -54,9 +54,10 @@
         <picker mode="time" value="{{planedCheckoutTime}}" bindchange="planedCheckoutTimeChange">
           <view>{{planedCheckoutTime}}</view>
         </picker>
-        <input name="prices" value="room.prices" placeholder="价格"></input>
-        <input name="deposit" value="room.deposit" placeholder="押金"></input>
       </view>
+      <input name="prices" value="{{room.prices}}" placeholder="价格" type="number"></input>
+      <input name="deposit" value="{{room.deposit}}" placeholder="押金" type='number'></input>
+      <input name="remark" value='{{room.remark}}' placeholder='备注'></input>
       <button formType="submit">提交</button>
     </form>
   </view>

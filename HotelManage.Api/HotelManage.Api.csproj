@@ -5,9 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\**" />
     <Compile Remove="wwwroot\**" />
+    <Content Remove="Models\**" />
     <Content Remove="wwwroot\**" />
+    <EmbeddedResource Remove="Models\**" />
     <EmbeddedResource Remove="wwwroot\**" />
+    <None Remove="Models\**" />
     <None Remove="wwwroot\**" />
   </ItemGroup>
 
@@ -36,10 +40,6 @@
     <Content Update="nlog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>

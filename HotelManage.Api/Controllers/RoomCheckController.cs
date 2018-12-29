@@ -121,6 +121,7 @@ namespace HotelManage.Api.Controllers
         /// </summary>
         /// <param name="roomCheck"></param>
         /// <returns></returns>
+        [HttpPost]
         public async Task<Response<RoomStatusRespones>> ModifyRoomCheck(RoomStatusRespones roomCheck)
         {
             string manager = HttpContext.User.Identity.Name;
