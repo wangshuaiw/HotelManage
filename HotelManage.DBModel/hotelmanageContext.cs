@@ -15,6 +15,7 @@ namespace HotelManage.DBModel
         {
         }
 
+        public virtual DbSet<Baiduapilog> Baiduapilog { get; set; }
         public virtual DbSet<Guest> Guest { get; set; }
         public virtual DbSet<Hotel> Hotel { get; set; }
         public virtual DbSet<Hotelenum> Hotelenum { get; set; }
@@ -27,12 +28,35 @@ namespace HotelManage.DBModel
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseMySql("server=127.0.0.1;userid=root;database=hotelmanage;treattinyasboolean=true;SslMode=None;AllowPublicKeyRetrieval=True;");
+                //optionsBuilder.UseMySql("server=127.0.0.1;userid=root;pwd=ws1234!!;port=3306;database=hotelmanage;treattinyasboolean=true;SslMode=None;AllowPublicKeyRetrieval=True;");
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Baiduapilog>(entity =>
+            {
+                entity.ToTable("baiduapilog");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("ID")
+                    .HasColumnType("bigint(20)");
+
+                entity.Property(e => e.CreateTime)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
+
+                entity.Property(e => e.HotelId)
+                    .HasColumnName("hotelId")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Type).HasColumnType("int(11)");
+
+                entity.Property(e => e.UpdateTime)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
+            });
+
             modelBuilder.Entity<Guest>(entity =>
             {
                 entity.ToTable("guest");

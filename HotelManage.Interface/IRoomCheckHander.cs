@@ -70,13 +70,28 @@ namespace HotelManage.Interface
         /// <param name="roomcheck"></param>
         /// <param name="manager"></param>
         /// <returns></returns>
-        RoomStatusRespones AddCheck(RoomStatusRespones roomcheck, string manager);
+        KeyValuePair<bool, string> AddCheck(RoomStatusRespones roomcheck, string manager);
 
         /// <summary>
         /// 修改订单
         /// </summary>
         /// <param name="check"></param>
         /// <param name="manager"></param>
-        void UpdateCheck(Roomcheck check, string manager);
+        KeyValuePair<bool, string> UpdateCheck(Roomcheck check, string manager);
+
+        /// <summary>
+        /// 取消订单
+        /// </summary>
+        /// <param name="check"></param>
+        /// <param name="manager"></param>
+        KeyValuePair<bool, string> DeleteCheck(Roomcheck check, string manager);
+
+        /// <summary>
+        /// 客人离店
+        /// </summary>
+        /// <param name="check"></param>
+        /// <param name="manager"></param>
+        /// <returns></returns>
+        KeyValuePair<bool, string> Checkout(Roomcheck check, string manager);
     }
 }

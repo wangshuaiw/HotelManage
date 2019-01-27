@@ -1,34 +1,39 @@
 {
-  "pages":[
+  "pages": [
     "pages/index/index",
     "pages/mypage/mypage",
     "pages/status/status",
     "pages/room/room",
     "pages/login/login",
-    "pages/loginerror/loginerror"
+    "pages/loginerror/loginerror",
+    "pages/camera/camera"
   ],
-  "window":{
-    "backgroundTextStyle":"light",
+  "window": {
+    "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "我家的宾馆",
-    "navigationBarTextStyle":"black"
+    "navigationBarTextStyle": "black"
   },
   "tabBar": {
-    "list": [{
-      "pagePath": "pages/index/index",
-      "text": "状态",
-      "iconPath": "image/ic_index.png",
-      "selectedIconPath": "image/ic_index_ck.png"
-    },{
-      "pagePath":"pages/room/room",
-      "text":"管理",
-      "iconPath":"image/ic_star.png",
-      "selectedIconPath":"image/ic_star_ck.png"
-    },{
-      "pagePath":"pages/mypage/mypage",
-      "text":"我的",
-      "iconPath":"image/ic_my.png",
-      "selectedIconPath":"image/ic_my_ck.png"
-    }]
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "状态",
+        "iconPath": "image/ic_index.png",
+        "selectedIconPath": "image/ic_index_ck.png"
+      },
+      {
+        "pagePath": "pages/room/room",
+        "text": "管理",
+        "iconPath": "image/ic_star.png",
+        "selectedIconPath": "image/ic_star_ck.png"
+      },
+      {
+        "pagePath": "pages/mypage/mypage",
+        "text": "我的",
+        "iconPath": "image/ic_my.png",
+        "selectedIconPath": "image/ic_my_ck.png"
+      }
+    ]
   }
 }

@@ -125,6 +125,7 @@ namespace HotelManage.Api.Controllers
         public async Task<Response<RoomStatusRespones>> ModifyRoomCheck([FromBody]RoomStatusRespones roomCheck)
         {
             string manager = HttpContext.User.Identity.Name;
+            KeyValuePair<bool, string> result;
             if (roomCheck.Id > 0)
             {
                 Roomcheck check = new Roomcheck()
@@ -142,19 +143,88 @@ namespace HotelManage.Api.Controllers
                     Remark = roomCheck.Remark,
                     UpdateTime = DateTime.Now
                 };
-                await Task.Run(() => { Hander.UpdateCheck(check, manager); });
+               result = await Task.Run(() => { return Hander.UpdateCheck(check, manager); });
                 
             }
             else
             {
-                await Task.Run(() => { Hander.AddCheck(roomCheck, manager); });
+                result = await Task.Run(() => { return Hander.AddCheck(roomCheck, manager); });
             }
-            return new Response<RoomStatusRespones>()
+            if(result.Key)
             {
-                Status = StatusEnum.Success,
-                Massage = "执行成功",
-                Data = roomCheck
-            };
+                return new Response<RoomStatusRespones>()
+                {
+                    Status = StatusEnum.Success,
+                    Massage = "执行成功",
+                    Data = roomCheck
+                };
+            }
+            else
+            {
+                return new Response<RoomStatusRespones>()
+                {
+                    Status = StatusEnum.ValidateModelError,
+                    Massage = result.Value.StartsWith("数据错误")? "数据错误!请刷新重试!":result.Value,
+                    Data = null
+                };
+            }
+            
+        }
+
+        /// <summary>
+        /// 取消订单
+        /// </summary>
+        /// <param name="roomCheck"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<BaseResponse> DeleteCheck([FromBody]Roomcheck roomCheck)
+        {
+            string manager = HttpContext.User.Identity.Name;
+            KeyValuePair<bool,string> result = await Task.Run(() => { return Hander.DeleteCheck(roomCheck, manager); });
+            if (result.Key)
+            {
+                return new BaseResponse()
+                {
+                    Status = StatusEnum.Success,
+                    Massage = "订单取消成功"
+                };
+            }
+            else
+            {
+                return new BaseResponse()
+                {
+                    Status = StatusEnum.ValidateModelError,
+                    Massage = result.Value
+                };
+            }
+        }
+
+        /// <summary>
+        /// 离店
+        /// </summary>
+        /// <param name="roomCheck"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<BaseResponse> Checkout([FromBody]Roomcheck roomCheck)
+        {
+            string manager = HttpContext.User.Identity.Name;
+            KeyValuePair<bool, string> result = await Task.Run(() => { return Hander.Checkout(roomCheck, manager); });
+            if (result.Key)
+            {
+                return new BaseResponse()
+                {
+                    Status = StatusEnum.Success,
+                    Massage = "订单取消成功"
+                };
+            }
+            else
+            {
+                return new BaseResponse()
+                {
+                    Status = StatusEnum.ValidateModelError,
+                    Massage = result.Value
+                };
+            }
         }
     }
 }

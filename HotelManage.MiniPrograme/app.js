@@ -86,7 +86,7 @@ App({
     })
   },
   globalData: {
-    url:'http://localhost:31290/api/',
+    url:'http://192.168.0.103:5000/api/',
     userInfo: null,
     hotel: null,
     token:null

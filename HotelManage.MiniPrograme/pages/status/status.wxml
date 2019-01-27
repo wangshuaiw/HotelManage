@@ -1,15 +1,34 @@
 <!--pages/status/status.wxml-->
+<view wx:if="{{showCamera}}">
+    <camera device-position="back" flash="off" binderror="error" style="width: 750rpx; height: 500rpx;"></camera>
+    <button type="primary" bindtap="takePhoto">拍照</button>
+</view>
 <view class="container">
+  
   <view>{{hotel.name}}</view>
   <view>{{date}}</view>
   <view>{{room.roomNo}}({{room.roomTypeName}})</view>
   <view wx:if="{{!room.status||room.status==0}}">
     <button bindtap='btnReserve'>有人预定</button>
-    <button>有人入住</button>
+    <button bindtap='btnCheckin'>有人入住</button>
+  </view>
+  <view wx:elif="{{room.status==1&&!isEdit}}">
+    <button bindtap='btnCheckin'>登记入住</button>
+    <button bindtap="btnEdit">修改信息</button> 
+    <button bindtap="btnDelCheck">取消预定</button>
+  </view>
+  <view wx:elif="{{room.status==2&&!isEdit}}">
+    <button bindtap="btnCheckout">离店</button>
+    <button bindtap="btnEdit">修改信息</button> 
+    <button bindtap="btnDelCheck">取消入住</button>
+  </view>
+  <view wx:elif="{{room.status==3}}">
+    已离店
   </view>
   <view wx:for="{{room.guests}}" wx:key="id">
     <form wx:if="{{item.isEdit}}" data-index='{{index}}' bindsubmit="saveGuest">
       <input name="name" value="{{item.name}}" placeholder="输入姓名" />
+      <button data-index='{{index}}' bindtap='btnShowCamera'>拍照</button>
       <picker name="certType" bindchange="certTypeChange" range="{{certTypes}}" range-key="value">
         <view>{{selectCertType.value}}</view>
       </picker>
@@ -22,11 +41,11 @@
       <view>{{item.name}}</view>
       <view>{{item.certTypeName}}:{{item.certId}}</view>
       <view>{{item.mobile}}</view>
-      <button>修改入住人</button>
-      <button data-guestId="{{item.id}}">删除入住人</button>
+      <button wx:if="{{room.status==1||room.status==2}}" data-index="{{index}}" bindtap='btnEditGuest'>修改入住人</button>
+      <button wx:if="{{room.status==1||room.status==2}}" data-index="{{index}}" bindtap='btnDelGuest'>删除入住人</button>
     </view>
   </view>
-  <button wx:if="{{room.status==1||room.status==2}}" bindtap='addGuest'>添加入住人</button>
+  <button wx:if="{{room.status==1||room.status==2}}" bindtap='btnAddGuest'>添加入住人</button>
   
   <view wx:if="{{isEdit}}">
     <form bindsubmit="saveCheck">
@@ -55,20 +74,29 @@
           <view>{{planedCheckoutTime}}</view>
         </picker>
       </view>
+      <view>价格：</view>
       <input name="prices" value="{{room.prices}}" placeholder="价格" type="number"></input>
+      <view>押金：</view>
       <input name="deposit" value="{{room.deposit}}" placeholder="押金" type='number'></input>
+      <view>备注：</view>
       <input name="remark" value='{{room.remark}}' placeholder='备注'></input>
       <button formType="submit">提交</button>
+      <button bindtap='btnCancelEdit'>取消</button>
     </form>
   </view>
   <view wx:else>
     <view wx:if="{{room.status==1}}">
-      <view>{{room.reserveTime}}</view>
-      <view>{{room.planedCheckinTime}}</view>
+      <view>预定时间：{{reserveTime}}</view>
+      <view>计划入住时间:{{planedCheckinDate+' '+planedCheckinTime }}</view>
+      <view>计划离店时间:{{planedCheckoutDate+' '+planedCheckoutTime}}</view>
     </view>
     <view wx:if="{{room.status==2}}">
-      <view>{{room.checkinTime}}</view>
-      <view>{{room.planedCheckoutTime}}</view>
+      <view>入住时间:{{checkinTime}}</view>
+      <view>计划离店时间:{{planedCheckoutDate+' '+planedCheckoutTime}}</view>
+    </view>
+    <view wx:if="{{room.status==3}}">
+      <view>入住时间:{{checkinTime}}</view>
+      <view>离店时间:{{checkoutTime}}</view>
     </view>
     <view wx:if="{{room.status!=0}}">
       <view>价格：{{room.prices}}</view>

@@ -70,6 +70,8 @@ namespace HotelManage.Api
             services.AddScoped<IRoomHander, RoomHander>();
             services.AddScoped<IHotelEnumHander, HotelEnumHander>();
             services.AddScoped<IRoomCheckHander, RoomCheckHander>();
+            services.AddScoped<IGuestHander, GuestHander>();
+            services.AddScoped<IOcrHander, OcrHander>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

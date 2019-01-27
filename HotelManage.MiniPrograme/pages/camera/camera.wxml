@@ -1,0 +1,13 @@
+<!--pages/camera/camera.wxml-->
+<view>
+  <view>
+    <camera device-position="back" flash="off" binderror="error" style="width: 100rpx; height: 300px;"></camera>
+    
+    <view>
+      <button type="primary" bindtap="takePhoto">拍照</button>
+    </view>
+    <!--
+    <image wx:if="{{src}}" mode="widthFix" src="{{src}}"></image>
+    -->
+  </view>
+</view>

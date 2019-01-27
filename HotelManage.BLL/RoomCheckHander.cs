@@ -231,6 +231,7 @@ namespace HotelManage.BLL
                 result.CheckoutTime = check.CheckoutTime;
                 result.Prices = check.Prices;
                 result.Deposit = check.Deposit;
+                result.Remark = check.Remark;
 
                 var certTypes = HotelContext.Hotelenum.Where(e => !e.IsDel.Value && e.EnumClass == DbConst.CertTypeEnumClass).ToList();
                 result.Guests = HotelContext.Guest.Where(g => !g.IsDel.Value && g.CheckId == check.Id).Select(g => new GuestResponse()
@@ -423,79 +424,85 @@ namespace HotelManage.BLL
         }
 
         //添加订单
-        public RoomStatusRespones AddCheck(RoomStatusRespones roomcheck,string manager)
+        public KeyValuePair<bool,string> AddCheck(RoomStatusRespones roomcheck,string manager)
         {
             if(roomcheck.Status!= (int)RoomStatus.Reserved&&roomcheck.Status!=(int)RoomStatus.Checkin)
             {
-                throw new Exception("添加订单时房间订单状态错误!");
+                return new KeyValuePair<bool, string>(false, "数据错误!");
             }
             if(roomcheck.Status == (int)RoomStatus.Reserved)
             {
                 if(!roomcheck.PlanedCheckinTime.HasValue)
                 {
-                    throw new Exception("预定房间必须要有计划入住时间!");
+                    return new KeyValuePair<bool, string>(false, "预定房间必须要有计划入住时间!");
                 }
             }
             if(roomcheck.Status == (int)RoomStatus.Checkin)
             {
                 if (!roomcheck.CheckinTime.HasValue)
                 {
-                    throw new Exception("入住房间必须要有入住时间!");
+                    return new KeyValuePair<bool, string>(false, "入住房间必须要有入住时间!");
                 }
             }
             if(!roomcheck.PlanedCheckoutTime.HasValue)
             {
-                throw new Exception("添加订单时必须要有计划离店时间!");
+                return new KeyValuePair<bool, string>(false, "必须要有计划离店时间!");
             }
             if(roomcheck.Guests==null|| roomcheck.Guests.Count<=0)
             {
-                throw new Exception("添加订单时必须要有入住人!");
+                return new KeyValuePair<bool, string>(false, "必须要有入住人!");
             }
             var certTypes = HotelContext.Hotelenum.Where(e => !e.IsDel.Value && e.EnumClass == DbConst.CertTypeEnumClass).ToList();
             foreach (GuestResponse g in roomcheck.Guests)
             {
                 if(string.IsNullOrWhiteSpace(g.Name))
                 {
-                    throw new Exception("入住人存在姓名为空!");
+                    return new KeyValuePair<bool, string>(false, "入住人存在姓名为空!");
                 }
-                if(string.IsNullOrWhiteSpace(g.CertId))
+                if(string.IsNullOrWhiteSpace(g.CertId)&& roomcheck.Status == (int)RoomStatus.Checkin)
                 {
-                    throw new Exception("入住人存在证件号码为空!");
+                    return new KeyValuePair<bool, string>(false, "入住人存在证件号码为空!");
                 }
-                if(!certTypes.Any(c=>c.FullKey==g.CertType))
+                if(!certTypes.Any(c=>c.FullKey==g.CertType) && roomcheck.Status == (int)RoomStatus.Checkin)
                 {
-                    throw new Exception("入住人存在证件类型错误!");
+                    return new KeyValuePair<bool, string>(false, "入住人存在证件类型错误!");
                 }
             }
             Room room = HotelContext.Room.FirstOrDefault(r => !r.IsDel.Value && r.Id == roomcheck.RoomId);
             if(room==null)
             {
-                throw new Exception("添加订单时房间未找到!");
+                return new KeyValuePair<bool, string>(false, "数据错误!");
             }
             if (!HotelContext.Hotelmanager.Any(m => !m.IsDel.Value && m.HotelId == room.HotelId && m.WxOpenId == manager))
             {
-                throw new Exception("添加房间时没有管理员权限!");
+                return new KeyValuePair<bool, string>(false, "没有管理员权限!");
+            }
+            Roomcheck check = new Roomcheck()
+            {
+                RoomId = roomcheck.RoomId,
+                Status = roomcheck.Status,
+                ReserveTime = roomcheck.ReserveTime,
+                PlanedCheckinTime = roomcheck.PlanedCheckinTime,
+                CheckinTime = roomcheck.CheckinTime,
+                PlanedCheckoutTime = roomcheck.PlanedCheckoutTime,
+                CheckoutTime = roomcheck.CheckoutTime,
+                Prices = roomcheck.Prices,
+                Deposit = roomcheck.Deposit,
+                Remark = roomcheck.Remark,
+                IsDel = false,
+                CreateTime = DateTime.Now,
+                UpdateTime = DateTime.Now
+            };
+            string msg;
+            if(!canReserveOrCheckin(check,out msg))
+            {
+                return new KeyValuePair<bool, string>(false, msg);
             }
             //add
             var tran = HotelContext.Database.BeginTransaction();
             try
             {
-                Roomcheck check = new Roomcheck()
-                {
-                    RoomId = roomcheck.RoomId,
-                    Status = roomcheck.Status,
-                    ReserveTime = roomcheck.ReserveTime,
-                    PlanedCheckinTime = roomcheck.PlanedCheckinTime,
-                    CheckinTime = roomcheck.CheckinTime,
-                    PlanedCheckoutTime = roomcheck.PlanedCheckoutTime,
-                    CheckoutTime = roomcheck.CheckoutTime,
-                    Prices = roomcheck.Prices,
-                    Deposit = roomcheck.Deposit,
-                    Remark = roomcheck.Remark,
-                    IsDel = false,
-                    CreateTime = DateTime.Now,
-                    UpdateTime = DateTime.Now
-                };
+                
                 HotelContext.Roomcheck.Add(check);
                 HotelContext.SaveChanges();
                 roomcheck.Id = check.Id;
@@ -525,46 +532,192 @@ namespace HotelManage.BLL
                 tran.Rollback();
                 throw ex;
             }
-            return roomcheck;
+            return new KeyValuePair<bool, string>(true,"添加成功");
         }
 
         //修改订单
-        public void UpdateCheck(Roomcheck check, string manager)
+        public KeyValuePair<bool, string> UpdateCheck(Roomcheck check, string manager)
         {
             if(check.Id<=0)
             {
-                throw new Exception("主键ID错误!");
+                return new KeyValuePair<bool, string>(false, "数据错误!");
             }
             if (check.Status == (int)RoomStatus.Reserved)
             {
                 if (!check.PlanedCheckinTime.HasValue)
                 {
-                    throw new Exception("预定房间必须要有计划入住时间!");
+                    return new KeyValuePair<bool, string>(false, "预定房间必须要有计划入住时间!");
                 }
             }
             if (check.Status == (int)RoomStatus.Checkin)
             {
                 if (!check.CheckinTime.HasValue)
                 {
-                    throw new Exception("入住房间必须要有入住时间!");
+                    return new KeyValuePair<bool, string>(false, "入住房间必须要有入住时间!");
                 }
             }
             if (!check.PlanedCheckoutTime.HasValue)
             {
-                throw new Exception("修改订单时必须要有计划离店时间!");
+                return new KeyValuePair<bool, string>(false, "必须要有计划离店时间!");
             }
             Room room = HotelContext.Room.FirstOrDefault(r => !r.IsDel.Value && r.Id == check.RoomId);
             if (room == null)
             {
-                throw new Exception("添加订单时房间未找到!");
+                return new KeyValuePair<bool, string>(false, "数据错误!");
             }
             if (!HotelContext.Hotelmanager.Any(m => !m.IsDel.Value && m.HotelId == room.HotelId && m.WxOpenId == manager))
             {
-                throw new Exception("添加房间时没有管理员权限!");
+                return new KeyValuePair<bool, string>(false, "没有管理员权限!");
+            }
+            string msg;
+            if(!canReserveOrCheckin(check,out msg))
+            {
+                return new KeyValuePair<bool, string>(false, msg);
             }
             //update
             check.UpdateTime = DateTime.Now;
             base.Update(check, "RoomId", "Status", "ReserveTime", "PlanedCheckinTime", "CheckinTime", "PlanedCheckoutTime", "CheckoutTime", "Prices", "Deposit", "Remark", "UpdateTime");
+            return new KeyValuePair<bool, string>(true, "更新成功!");
+        }
+
+        //删除订单
+        public KeyValuePair<bool, string> DeleteCheck(Roomcheck check, string manager)
+        {
+            if (check.Id <= 0)
+            {
+                return new KeyValuePair<bool, string>(false, "数据错误!");
+            }
+            Room room = HotelContext.Room.FirstOrDefault(r => !r.IsDel.Value && r.Id == check.RoomId);
+            if (room == null)
+            {
+                return new KeyValuePair<bool, string>(false, "数据错误!");
+            }
+            if (!HotelContext.Hotelmanager.Any(m => !m.IsDel.Value && m.HotelId == room.HotelId && m.WxOpenId == manager))
+            {
+                return new KeyValuePair<bool, string>(false, "没有管理员权限!");
+            }
+            List<Guest> guests = HotelContext.Guest.Where(g => g.CheckId == check.Id && !g.IsDel.Value).ToList();
+            var tran = HotelContext.Database.BeginTransaction();
+            try
+            {
+                foreach(Guest g in guests)
+                {
+                    g.IsDel = true;
+                    g.UpdateTime = DateTime.Now;
+                }
+                check.IsDel = true;
+                check.UpdateTime = DateTime.Now;
+                base.Update(check, "IsDel", "UpdateTime");
+                tran.Commit();
+            }
+            catch(Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
+            return new KeyValuePair<bool, string>(true, "取消成功!");
+        }
+
+        //离店
+        public KeyValuePair<bool,string> Checkout(Roomcheck check,string manager)
+        {
+            if (check.Id <= 0)
+            {
+                return new KeyValuePair<bool, string>(false, "数据错误!");
+            }
+            Room room = HotelContext.Room.FirstOrDefault(r => !r.IsDel.Value && r.Id == check.RoomId);
+            if (room == null)
+            {
+                return new KeyValuePair<bool, string>(false, "数据错误!");
+            }
+            if (!HotelContext.Hotelmanager.Any(m => !m.IsDel.Value && m.HotelId == room.HotelId && m.WxOpenId == manager))
+            {
+                return new KeyValuePair<bool, string>(false, "没有管理员权限!");
+            }
+
+            Roomcheck oldCheck = HotelContext.Roomcheck.Find(check.Id);
+            if(oldCheck.Status!=(int)RoomStatus.Checkin)
+            {
+                return new KeyValuePair<bool, string>(false, "数据错误!");
+            }
+
+            oldCheck.Status = (int)RoomStatus.Ckeckout;
+            oldCheck.CheckoutTime = check.CheckoutTime;
+            oldCheck.UpdateTime = DateTime.Now;
+            HotelContext.SaveChanges();
+
+            return new KeyValuePair<bool, string>(true, "离店成功!");
+        }
+
+        /// <summary>
+        /// 判断是否可以预定或者入住
+        /// </summary>
+        /// <param name="check"></param>
+        /// <returns></returns>
+        private bool canReserveOrCheckin(Roomcheck check,out string msg)
+        {
+            msg = null;
+            DateTime beginTime; 
+            if(check.Status== (int)RoomStatus.Reserved)
+            {
+                beginTime = check.PlanedCheckinTime.Value;
+            }
+            else
+            {
+                beginTime = check.CheckinTime.Value;
+            }
+
+            if(check.Status == (int)RoomStatus.Reserved|| check.Status == (int)RoomStatus.Checkin)
+            {
+                //判断在预定或者入住时间里是否已有预定或者入住的订单
+                var existReserve = HotelContext.Roomcheck.FirstOrDefault(c => c.RoomId == check.RoomId
+                                                                           && c.Id != check.Id
+                                                                           && c.Status == (int)RoomStatus.Reserved
+                                                                           && !c.IsDel.Value
+                                                                           && c.PlanedCheckinTime < check.PlanedCheckoutTime
+                                                                           && c.PlanedCheckoutTime > beginTime);
+                if (existReserve!=null)
+                {
+                    msg = $"已经有人预定，时间从{ existReserve.PlanedCheckinTime }到{ existReserve.PlanedCheckoutTime }";
+                    return false;
+                }
+                else
+                {
+                    var existCheckin = HotelContext.Roomcheck.FirstOrDefault(c => c.RoomId == check.RoomId
+                                                                               && c.Id != check.Id
+                                                                               && c.Status == (int)RoomStatus.Checkin
+                                                                               && !c.IsDel.Value
+                                                                               && c.CheckinTime < check.PlanedCheckoutTime
+                                                                               && c.PlanedCheckoutTime > beginTime);
+                    if (existCheckin != null)
+                    {
+                        msg = $"已经有人入住，时间从{ existCheckin.CheckinTime }到{ existCheckin.PlanedCheckoutTime }";
+                        return false;
+                    }
+                    else
+                    {
+                        var existCheckout = HotelContext.Roomcheck.FirstOrDefault(c => c.RoomId == check.RoomId
+                                                                                    && c.Id != check.Id
+                                                                                    && c.Status == (int)RoomStatus.Ckeckout
+                                                                                    && !c.IsDel.Value
+                                                                                    && c.CheckinTime < check.CheckoutTime
+                                                                                    && c.PlanedCheckoutTime > beginTime);
+                        if (existCheckout != null)
+                        {
+                            msg = $"已经有人入住过，时间从{ existCheckin.CheckinTime }到{ existCheckin.PlanedCheckoutTime }";
+                            return false;
+                        }
+                        else
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 }

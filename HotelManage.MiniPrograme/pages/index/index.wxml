@@ -38,6 +38,11 @@
         </block>
       </view>
       <view wx:else>
+        <block wx:for="{{item.guests}}" wx:for-item="guest" wx:key="id">
+          <view>{{guest.name}}</view>
+          <view>{{guest.certTypeName}}:{{guest.certId}}</view>
+          <view>{{guest.moble}}</view>
+        </block>
       </view>
     </block>
   </view>
