@@ -10,9 +10,11 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#fff",
+    "navigationBarBackgroundColor": "#393a3f",
     "navigationBarTitleText": "我家的宾馆",
-    "navigationBarTextStyle": "black"
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#EBEBEB",
+    "enablePullDownRefresh":true
   },
   "tabBar": {
     "list": [

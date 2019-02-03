@@ -168,7 +168,11 @@ Page({
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh: function () {
-  
+    this.onLoad({
+      roomId: this.data.room.roomId,
+      id: this.data.room.id,
+      date: this.data.date
+    });
   },
 
   /**
@@ -751,63 +755,12 @@ Page({
             })
           }
         })
-
-        /*
-        wx.getFileSystemManager().readFile({
-          filePath: res.tempImagePath, 
-          encoding: 'base64', 
-          success: re => { 
-            console.log(re.data)
-            wx.request({
-              url: app.globalData.url + 'Guest/GetInfoFromCert',
-              method: "POST",
-              header: {
-                "Authorization": "Bearer " + app.globalData.token.token
-              },
-              data: {
-                imageBuffer: re.data,
-                hotelId: this.data.hotel.id
-              },
-              success: r => {
-                if (r.statusCode == 200 && r.data) {
-                  if (r.data.status == 1) {
-                    console.log(r.data.data);
-                    //todo
-                  } else if (r.data.status == -2) {
-                    wx.showToast({
-                      title: r.data.massage,
-                      icon: 'none'
-                    });
-                  } else {
-                    wx.showToast({
-                      title: '系统问题',
-                      icon: 'none'
-                    });
-                  }
-                } else {
-                  wx.showToast({
-                    title: '网络问题，请稍后再试',
-                    icon: 'none'
-                  });
-                }
-              },
-              fail: r => {
-                wx.showToast({
-                  title: '网络问题，请稍后再试',
-                  icon: 'none'
-                });
-              },
-              complete:r=>{
-                this.setData({
-                  showCamera: false
-                })
-              }
-            })
-            
-          }
-        })
-        */
       }
+    })
+  },
+  cancelPhoto:function(){
+    this.setData({
+      showCamera:false
     })
   },
 

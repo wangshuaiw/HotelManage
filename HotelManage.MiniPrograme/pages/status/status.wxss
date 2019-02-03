@@ -1,1 +1,118 @@
 /* pages/status/status.wxss */
+.top{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  box-sizing: border-box;
+}
+
+.btnGroup{
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.btnGroup .btn{
+  border-radius:5rpx;
+  width: 200rpx;
+  font-size: small;
+  color: white;
+  background-color: #0f81ec;
+  font-weight:bold;
+}
+
+.btnGroup .info{
+  font-size: small;
+}
+
+.btnGroup .preBtn{
+  flex:1;
+}
+
+.guest{
+  margin: 20rpx;
+}
+
+.guest .top{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  
+}
+
+.guest .top .preBtn{
+  font-size: small;
+  color: gray;
+  flex:1;
+}
+
+.guest .top .name{
+  flex:1;
+  padding-left: 40rpx;
+}
+
+.guest .top .btn{
+  font-size: small;
+  font-weight:bold;
+  border-radius:5rpx;
+  width: 150rpx;
+  margin-left: 20rpx;
+  color: white;
+  background-color: #0f81ec;
+  text-align: center;
+}
+
+.guest .info{
+  margin-top: -10rpx;
+  padding-left: 40rpx;
+}
+
+.addGuestBtn{
+  border-radius:5rpx;
+  color: white;
+  background-color: #0f81ec;
+  font-size: small;
+  font-weight:bold;
+  width: 320rpx;
+  text-align: center;
+}
+
+.roomInfo{
+  margin: 20rpx;
+}
+
+.roomInfoTitle{
+  color: gray;
+  font-size: x-small;
+}
+
+.roomInfoText{
+  padding-left: 40rpx;
+}
+
+.guestInfoTitle{
+  color: gray;
+  font-size: x-small;
+  padding-left: 20rpx;
+}
+
+.camera{
+  margin: 20rpx;
+  border-radius:5rpx;
+  width: 710rpx;
+  height: 500rpx;
+}
+
+.timePicker{
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.timePicker .time{
+  margin-left: 40rpx
+}

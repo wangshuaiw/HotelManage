@@ -14,6 +14,13 @@ Page({
     this.setData({
       date: sysDate
     });
+    
+  },
+
+  /**
+   * 生命周期函数--监听页面显示
+   */
+  onShow: function () {
     if (app.globalData.hotel) {
       this.setData({
         hotel: app.globalData.hotel,
@@ -31,27 +38,28 @@ Page({
         },
         success: res => {
           if (res.data && res.data.status && res.data.status == 1 && res.data.data) {
+            this.formatRoomTime(res.data.data);
             this.setData({
               rooms: res.data.data
             })
-          }else{
+          } else {
             wx.showToast({
               title: '网络问题，请稍后再试',
               icon: 'none'
             });
           }
         },
-        fail:res=>{
+        fail: res => {
           wx.showToast({
             title: '网络问题，请稍后再试',
             icon: 'none'
           });
         }
       })
-      
+
     } else {
-      app.globalDataReadyCallback=d=>{
-        if(d.hotel){
+      app.globalDataReadyCallback = d => {
+        if (d.hotel) {
           this.setData({
             hotel: d.hotel,
             hasHotel: true
@@ -68,6 +76,7 @@ Page({
             },
             success: res => {
               if (res.data && res.data.status && res.data.status == 1 && res.data.data) {
+                this.formatRoomTime(res.data.data);
                 this.setData({
                   rooms: res.data.data
                 })
@@ -89,6 +98,15 @@ Page({
       }
     }
   },
+
+  /**
+   * 页面相关事件处理函数--监听用户下拉动作
+   */
+  onPullDownRefresh: function () {
+    this.onLoad();
+    this.onShow();
+  },
+
   dateChange:function(e){
     this.setData({
       date: e.detail.value
@@ -107,6 +125,7 @@ Page({
       },
       success: res => {
         if (res.data && res.data.status && res.data.status == 1 && res.data.data) {
+          this.formatRoomTime(res.data.data);
           this.setData({
             rooms: res.data.data
           })
@@ -124,5 +143,25 @@ Page({
         });
       }
     })
+  },
+
+  formatRoomTime:function(rooms){
+    for (var i = 0; i < rooms.length; i++) {
+      if (rooms[i].reserveTime) {
+        rooms[i].reserveTime = util.formatTimeNoSecond(new Date(rooms[i].reserveTime));
+      }
+      if (rooms[i].planedCheckinTime) {
+        rooms[i].planedCheckinTime = util.formatTimeNoSecond(new Date(rooms[i].planedCheckinTime));
+      }
+      if (rooms[i].checkinTime) {
+        rooms[i].checkinTime = util.formatTimeNoSecond(new Date(rooms[i].checkinTime));
+      }
+      if (rooms[i].planedCheckoutTime) {
+        rooms[i].planedCheckoutTime = util.formatTimeNoSecond(new Date(rooms[i].planedCheckoutTime));
+      }
+      if (rooms[i].checkoutTime) {
+        rooms[i].checkoutTime = util.formatTimeNoSecond(new Date(rooms[i].checkoutTime));
+      }
+    }
   }
 })

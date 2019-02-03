@@ -1,4 +1,13 @@
 /**app.wxss**/
+page{
+    background-color: #f1f1f1;
+}
+
+.container {
+  margin-top:20rpx;
+}
+
+/*
 .container {
   height: 100%;
   display: flex;
@@ -8,3 +17,4 @@
   padding: 20rpx 0;
   box-sizing: border-box;
 } 
+*/
