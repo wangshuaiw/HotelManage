@@ -86,7 +86,7 @@ App({
     })
   },
   globalData: {
-    url:'http://192.168.0.103:5000/api/',
+    url:'http://106.12.19.234/api/',
     userInfo: null,
     hotel: null,
     token:null

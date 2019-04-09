@@ -85,7 +85,7 @@ namespace HotelManage.BLL
                 throw new Exception("添加入住人时没有管理员权限!");
             }
             guest.UpdateTime = DateTime.Now;
-            base.Update(guest, "CheckId", "Name", "CertType", "CertId", "Mobile", "UpdateTime");
+            base.Update(guest, "CheckId", "Name", "CertType", "CertId", "Mobile", "Address", "UpdateTime");
 
         }
 

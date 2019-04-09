@@ -11,6 +11,7 @@ namespace HotelManage.DBModel
         public string CertType { get; set; }
         public string CertId { get; set; }
         public string Mobile { get; set; }
+        public string Address { get; set; }
         public bool? IsDel { get; set; }
         public DateTime? CreateTime { get; set; }
         public DateTime? UpdateTime { get; set; }

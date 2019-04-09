@@ -8,6 +8,7 @@ Page({
    */
   data: {
     showCamera:false,
+    //showLoading:false,
     hotel: {},
     date:null,
     room:{},
@@ -260,7 +261,8 @@ Page({
             name: e.detail.value.name,
             certType: this.data.selectCertType.key,
             certId: e.detail.value.certId,
-            mobile: e.detail.value.mobile
+            mobile: e.detail.value.mobile,
+            address: e.detail.value.address
           },
           success: res => {
             if (res.data && res.data.status && res.data.status == 1) {
@@ -269,6 +271,7 @@ Page({
               this.data.room.guests[i].certTypeName = this.data.selectCertType.value;
               this.data.room.guests[i].certId = e.detail.value.certId;
               this.data.room.guests[i].mobile = e.detail.value.mobile;
+              this.data.room.guests[i].address = e.detail.value.address;
               this.data.room.guests[i].isEdit = false;
               this.setData({
                 room: this.data.room
@@ -300,7 +303,8 @@ Page({
             name: e.detail.value.name,
             certType: this.data.selectCertType.key,
             certId: e.detail.value.certId,
-            mobile: e.detail.value.mobile
+            mobile: e.detail.value.mobile,
+            address: e.detail.value.address
           },
           success: res => {
             if (res.data && res.data.status && res.data.status == 1 && res.data.data) {
@@ -310,6 +314,7 @@ Page({
               this.data.room.guests[i].certTypeName = this.data.selectCertType.value;
               this.data.room.guests[i].certId = e.detail.value.certId;
               this.data.room.guests[i].mobile = e.detail.value.mobile;
+              this.data.room.guests[i].address = e.detail.value.address;
               this.data.room.guests[i].isEdit = false;
               this.setData({
                 room: this.data.room
@@ -336,6 +341,7 @@ Page({
       this.data.room.guests[i].certTypeName = this.data.selectCertType.value;
       this.data.room.guests[i].certId = e.detail.value.certId;
       this.data.room.guests[i].mobile = e.detail.value.mobile;
+      this.data.room.guests[i].address = e.detail.value.address;
       this.data.room.guests[i].isEdit = false;
       this.setData({
         room: this.data.room
@@ -694,6 +700,15 @@ Page({
     })
   },
   takePhoto:function(e){
+    this.setData({
+      showCamera: false
+      //showLoading:true
+    })
+
+    wx.showLoading({
+      title: '加载中',
+    })
+
     this.ctx.takePhoto({
       quality: 'high',
       success: (res) => {
@@ -719,6 +734,7 @@ Page({
                   if (this.data.room.guests[i].isEdit == true) {
                     this.data.room.guests[i].certId = result.data.certId;
                     this.data.room.guests[i].name = result.data.name;
+                    this.data.room.guests[i].address = result.data.address;
                   }
                 }
                 this.setData({
@@ -750,9 +766,10 @@ Page({
             });
           },
           complete:res=>{
-            this.setData({
-              showCamera: false
-            })
+            //this.setData({
+            //  showLoading: false
+            //})
+            wx.hideLoading()
           }
         })
       }

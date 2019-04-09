@@ -37,5 +37,6 @@ namespace HotelManage.ViewModel.ApiVM.ResponseVM
         public string CertTypeName { get; set; }
         public string CertId { get; set; }
         public string Mobile { get; set; }
+        public string Address { get; set; }
     }
 }

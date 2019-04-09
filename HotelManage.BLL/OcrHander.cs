@@ -66,11 +66,13 @@ namespace HotelManage.BLL
                 }
                 string name = jObject["words_result"]["姓名"]["words"].ToString();
                 string certId = jObject["words_result"]["公民身份号码"]["words"].ToString();
+                string address = jObject["words_result"]["住址"]["words"].ToString();
 
                 return new KeyValuePair<Guest, string>(new Guest()
                 {
                     Name = name,
-                    CertId = certId
+                    CertId = certId,
+                    Address = address
                 }, "解析成功");
             }
             else

@@ -55,7 +55,8 @@ namespace HotelManage.BLL
                         CertTypeName = certTypes.FirstOrDefault(t => t.FullKey == g.CertType) == null ? "" :
                               certTypes.FirstOrDefault(t => t.FullKey == g.CertType).Name,
                         CertId = g.CertId,
-                        Mobile = g.Mobile
+                        Mobile = g.Mobile,
+                        Address = g.Address
                     }).ToList();
                 };
 
@@ -125,7 +126,8 @@ namespace HotelManage.BLL
                             CertTypeName = certTypes.FirstOrDefault(t => t.FullKey == g.CertType) == null ? "" :
                                   certTypes.FirstOrDefault(t => t.FullKey == g.CertType).Name,
                             CertId = g.CertId,
-                            Mobile = g.Mobile
+                            Mobile = g.Mobile,
+                            Address = g.Address
                         }).ToList();
                     }
                 };
@@ -193,7 +195,8 @@ namespace HotelManage.BLL
                             CertTypeName = certTypes.FirstOrDefault(t => t.FullKey == g.CertType) == null ? "" :
                                   certTypes.FirstOrDefault(t => t.FullKey == g.CertType).Name,
                             CertId = g.CertId,
-                            Mobile = g.Mobile
+                            Mobile = g.Mobile,
+                            Address = g.Address
                         }).ToList();
                     }
                 };
@@ -243,7 +246,8 @@ namespace HotelManage.BLL
                     CertTypeName = certTypes.FirstOrDefault(t => t.FullKey == g.CertType) == null ? "" :
                           certTypes.FirstOrDefault(t => t.FullKey == g.CertType).Name,
                     CertId = g.CertId,
-                    Mobile = g.Mobile
+                    Mobile = g.Mobile,
+                    Address = g.Address
                 }).ToList();
             }
             return result;
@@ -286,7 +290,8 @@ namespace HotelManage.BLL
                         CertTypeName = certTypes.FirstOrDefault(t => t.FullKey == g.CertType) == null ? "" :
                               certTypes.FirstOrDefault(t => t.FullKey == g.CertType).Name,
                         CertId = g.CertId,
-                        Mobile = g.Mobile
+                        Mobile = g.Mobile,
+                        Address = g.Address
                     }).ToList();
                 };
             }
@@ -352,7 +357,8 @@ namespace HotelManage.BLL
                         CertTypeName = certTypes.FirstOrDefault(t => t.FullKey == g.CertType) == null ? "" :
                               certTypes.FirstOrDefault(t => t.FullKey == g.CertType).Name,
                         CertId = g.CertId,
-                        Mobile = g.Mobile
+                        Mobile = g.Mobile,
+                        Address = g.Address
                     }).ToList();
                 };
             }
@@ -416,7 +422,8 @@ namespace HotelManage.BLL
                         CertTypeName = certTypes.FirstOrDefault(t => t.FullKey == g.CertType) == null ? "" :
                               certTypes.FirstOrDefault(t => t.FullKey == g.CertType).Name,
                         CertId = g.CertId,
-                        Mobile = g.Mobile
+                        Mobile = g.Mobile,
+                        Address = g.Address
                     }).ToList();
                 };
             }
@@ -516,6 +523,7 @@ namespace HotelManage.BLL
                         CertType = g.CertType,
                         CertId = g.CertId,
                         Mobile = g.Mobile,
+                        Address = g.Address,
                         IsDel = false,
                         CreateTime = DateTime.Now,
                         UpdateTime = DateTime.Now

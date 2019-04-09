@@ -1,13 +1,18 @@
 <!--pages/status/status.wxml-->
 <view class="container">
   <view wx:if="{{showCamera}}">
+    <!--<view wx:if="{{showLoading}}">
+      <image class='camera' src='../../image/loading.gif' />
+    </view>
+    <view wx:else>-->
       <camera class='camera' device-position="back" flash="off" binderror="error"></camera>
       <view class='btnGroup'>
         <button class='btn' bindtap="takePhoto">拍照</button>
         <button class='btn' bindtap="cancelPhoto">取消</button>
       </view>
+    <!--<view>-->
   </view>
-  <view>
+  <view wx:else>
     <view class='top'>
       <view>{{hotel.name}}</view>
       <view>{{date}}</view>
@@ -47,6 +52,8 @@
         <input class='roomInfoText' name="certId" value="{{item.certId}}" placeholder="输入证件号" ></input>
         <view class='guestInfoTitle'>手机号:</view>
         <input class='roomInfoText' name="mobile" value="{{item.mobile}}" placeholder="输入手机号"></input>
+        <view class='guestInfoTitle'>联系地址:</view>
+        <input class='roomInfoText' name="address" value="{{item.address}}" placeholder="输入联系地址"></input>
         <view class='btnGroup'>
           <button class='btn' formType="submit">保存</button>
           <button class='btn' data-index='{{index}}' bindtap='btnCancel'>取消</button>
@@ -63,6 +70,7 @@
           <view>{{item.name}}</view>
           <view>{{item.certTypeName}}：{{item.certId}}</view>
           <view>手机号：{{item.mobile}}</view>
+          <view>联系地址：{{item.address}}</view>
         </view>
         
       </view>

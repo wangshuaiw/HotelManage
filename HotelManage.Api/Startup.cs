@@ -84,6 +84,8 @@ namespace HotelManage.Api
 
             app.UseMiddleware(typeof(ExceptionHandlerMiddleWare));
 
+            app.UseHttpsRedirection();
+
             app.UseAuthentication();
 
             app.UseMvc(routes => routes.MapRoute("default", "api/{controller=Values}/{action=Get}/{id?}"));
