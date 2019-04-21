@@ -1,4 +1,5 @@
 // pages/mypage/mypage.js
+var eventH = require('../../utils/eventHelp.js');
 const app = getApp()
 Page({
   /**
@@ -220,7 +221,7 @@ Page({
       // 来自页面内转发按钮,共同管理宾馆
       return{
         title:"和我一起管理宾馆吧",
-        path: "/pages/mypage?hotelId=" + this.data.myHotel.id
+        path: "/pages/mypage/mypage?hotelId=" + this.data.myHotel.id
       }
     }else{
       //分享小程序
@@ -760,5 +761,40 @@ Page({
         }
       }
     })
+  },
+  tapHotel:function(e){
+    eventH.doubleTap(e,e,(e)=>{
+      this.updateHotel(e);
+    })
+  },
+
+  longPressHotel:function(e){
+    wx.showActionSheet({
+      itemList: ['编辑'],
+      success:res=>{
+        if (res.tapIndex==0){
+          this.updateHotel();
+        } 
+      }
+    })
+  },
+
+  tapRoom:function(e){
+    eventH.doubleTap(e, e, (e) => {
+      this.updateRoom(e);
+    })
+  },
+
+  longPressRoom:function(e){
+    wx.showActionSheet({
+      itemList: ['编辑', '删除'],
+      success: res=> {
+        //console.log(res.tapIndex);
+        if (res.tapIndex == 0) {
+          this.updateRoom(e);
+        }
+      }
+    })
   }
+  
 })

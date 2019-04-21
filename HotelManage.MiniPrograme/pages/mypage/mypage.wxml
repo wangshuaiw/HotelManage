@@ -1,100 +1,133 @@
 <!--pages/mypage/mypage.wxml-->
 <view class="container">
   <view class="userinfo">
-      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+      <image class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
       <text class="userinfo-nickname">{{userInfo.nickName}}</text>
   </view>
-  <view class="myhotel {{(editHotel==1||editHotel==2) ? 'hide' : 'show'}}">
+  <view wx:if="{{editHotel!=1&&editHotel!=2}}" class='myhotel' >
     <button wx:if="{{!hasHotel}}" bindtap="addHotel">添加宾馆</button>
-    <block wx:else>
-      <text>我的宾馆:{{myHotel.name}}</text>
-      <text decode="{{true}}" >地&emsp;&emsp;址：{{fullAddress}}</text>
-      <button bindtap='updateHotel'>修改</button>
-      <button wx:if="{{canShare}}" open-type='share'>邀请他人共同管理</button>
-    </block>
+    <view wx:else>
+      <view bindtap='tapHotel' bindlongpress='longPressHotel'>
+        <view>我的宾馆：{{myHotel.name}}</view>
+        <view>
+          <text  decode="{{true}}">地&emsp;&emsp;址：{{fullAddress}}</text>
+        </view>
+      </view>
+      
+      <!--<button bindtap='updateHotel'>修改</button>-->
+      <button size='mini' wx:if="{{canShare}}" class='share' open-type='share'> 
+        <image src='../../image/share.png' mode='scaleToFill' class='shareImg'></image>
+        <text class='shareText'>邀请他人共同管理</text>
+      </button>
+      <!--<button wx:if="{{canShare}}" open-type='share'>邀请他人共同管理</button>-->
+    </view>
   </view>
-  <view class="{{(editHotel==1||editHotel==2) ? 'show' : 'hide'}}">
+  <view wx:if="{{editHotel==1||editHotel==2}}" class='modify'>
     <form bindsubmit="formSubmit">
-      <!--<view>
-        <view>地区：</view>
-        
-      </view>-->
       <view>
-        <view>宾馆名称:</view>
-        <input name="name" placeholder="请输入宾馆名称" value='{{myHotel.name}}'></input>
+        <view class='title'>宾馆名称:</view>
+        <input class='content' name="name" placeholder="请输入宾馆名称" value='{{myHotel.name}}'></input>
       </view>
       <view>
-        <view>地址:</view>
-        <picker name="region" mode="region" bindchange="bindRegionChange" value="{{region}}">
+        <view class='title'>地址:</view>
+        <picker class='content' name="region" mode="region" bindchange="bindRegionChange" value="{{region}}">
           <view>
             {{region[0]}}，{{region[1]}}，{{region[2]}}
           </view>
         </picker>
-        <input name="address" placeholder="请输入宾馆详细地址" value='{{myHotel.address}}'></input>
+        <input class='content' name="address" placeholder="请输入宾馆详细地址" value='{{myHotel.address}}'></input>
       </view>
       <view>
-        <view>管理密码:</view>
-        <input name="hotelPassword" password="true" placeholder="请输入宾馆管理密码"></input>
+        <view class='title'>管理密码:</view>
+        <input class='content' name="hotelPassword" password="true" placeholder="请输入宾馆管理密码"></input>
       </view>
-      <view wx:if="{{editHotel==1}}">
-        <view>确认管理密码:</view>
-        <input name="hotelPassword2" password="true" placeholder="请再次输入宾馆管理密码"></input>
-      </view>
-      <view>
-        <view>宾馆特色:</view>
-        <textarea name="remark" style='height:120rpx' placeholder="输入宾馆特色，如：干净卫生，价格实惠" value='{{myHotel.remark}}'></textarea>
+      <view wx:if="{{editHotel==1}}" >
+        <view class='title'>确认管理密码:</view>
+        <input class='content' name="hotelPassword2" password="true" placeholder="请再次输入宾馆管理密码"></input>
       </view>
       <view>
-        <button formType="submit">保存</button>
-        <button bindtap="editCancel" >取消</button>
+        <view class='title'>宾馆特色:</view>
+        <textarea class='content textA' name="remark" placeholder="输入宾馆特色，如：干净卫生，价格实惠" value='{{myHotel.remark}}'></textarea>
+      </view>
+      <view class='btnGroup'>
+        <button class='btn' size='mini' formType="submit">保存</button>
+        <button class='btn' size='mini' bindtap="editCancel" >取消</button>
       </view>
     </form>
   </view>
-  <view wx:if="{{isShare}}">
+  <view wx:if="{{isShare}}" class='modify'>
     <form bindsubmit="addManager">
-      <view>宾馆名称:{{myHotel.name}}</view>
-      <view>地址:{{fullAddress}}</view>
+      <view>宾馆名称：{{myHotel.name}}</view>
       <view>
-        <view>管理密码:</view>
-        <input name="hotelPassword" password="true" placeholder="请输入宾馆管理密码"></input>
+        <text decode="{{true}}">地&emsp;&emsp;址：{{fullAddress}}</text>
       </view>
       <view>
-        <button formType="submit">我要管理</button>
-        <button bindtap="cancelAddManager">不要管理</button>
+        <!--<view class='title'>管理密码:</view>-->
+        <input class='content marginTop' name="hotelPassword" password="true" placeholder="请输入宾馆管理密码"></input>
+      </view>
+      <view class='btnGroup'>
+        <button class='btn' size='mini' formType="submit">我要管理</button>
+        <button class='btn' size='mini' bindtap="cancelAddManager">不要管理</button>
       </view>
     </form>
   </view>
 
   <view>
-    <view>房间:</view>
-    <view wx:for="{{rooms}}" wx:key="id">
-      <view>{{item.roomNo}}</view>
-      <view>{{item.roomTypeName}}</view>
-      <button plain="true" bindtap="updateRoom" data-item="{{item}}">修改</button>
-      <button plain="true" bindtap="deleteRoom" data-item="{{item}}">删除</button>
+    <text class='roomTitle' decode="{{true}}" >房&emsp;&emsp;间：</text>
+    <!--<view class='roomTitle' decode="{{true}}">房间:</view>-->
+    <view class='room' wx:for="{{rooms}}" wx:key="id">
+      <view bindtap='tapRoom' bindlongpress='longPressRoom'>{{item.roomNo}} -- {{item.roomTypeName}}</view>
+      <!--<view class='btnGroup'>
+        <button type='primary' size='mini' class='btn' bindtap="updateRoom" data-item="{{item}}">修改</button>
+        <button type='primary' size='mini' class='btn' bindtap="deleteRoom" data-item="{{item}}">删除</button>
+      </view>-->
+
+      <view wx:if="{{item.edit}}" class='modify'>
+        <form bindsubmit="editRoomSubmit">
+          <view>
+            <view class='title'>房间编号:</view>
+            <input class='content' name="roomNo" placeholder="请输入房间编号" value='{{selectRoom.roomNo}}'></input>
+          </view>
+          <view>
+            <view class='title'>房间类型:</view>
+            <picker class='content' name="roomType" bindchange="bindRoomTypeChange" range="{{roomTypes}}" range-key="value">
+              <view>{{selectRoomType.value}}</view>
+            </picker>
+          </view>
+          <view>
+            <view class='title'>备注说明:</view>
+            <input class='content' name="remark" placeholder="房间其他信息可写在这里" value='{{selectRoom.remark}}'></input>
+          </view>
+          <view class='btnGroup'>
+              <button class='btn' size='mini' formType="submit">保存</button>
+              <button class='btn' size='mini' bindtap="cancelEditRoom">取消</button>
+          </view>
+        </form>
+      </view>
+
     </view>
     <button wx:if="{{hasHotel}}" bindtap="addRoom">添加房间</button>
   </view>
 
-  <view wx:if="{{editRoom==1||editRoom==2}}">
+  <view wx:if="{{editRoom==1||editRoom==2}}" class='modify'>
     <form bindsubmit="editRoomSubmit">
       <view>
-        <view>房间编号:</view>
-        <input name="roomNo" placeholder="请输入房间编号" value='{{selectRoom.roomNo}}'></input>
+        <view class='title'>房间编号:</view>
+        <input class='content' name="roomNo" placeholder="请输入房间编号" value='{{selectRoom.roomNo}}'></input>
       </view>
       <view>
-        <view>房间类型:</view>
-        <picker name="roomType" bindchange="bindRoomTypeChange" range="{{roomTypes}}" range-key="value">
+        <view class='title'>房间类型:</view>
+        <picker class='content' name="roomType" bindchange="bindRoomTypeChange" range="{{roomTypes}}" range-key="value">
           <view>{{selectRoomType.value}}</view>
         </picker>
       </view>
       <view>
-        <view>备注说明:</view>
-        <input name="remark" placeholder="房间其他信息可写在这里" value='{{selectRoom.remark}}'></input>
+        <view class='title'>备注说明:</view>
+        <input class='content' name="remark" placeholder="房间其他信息可写在这里" value='{{selectRoom.remark}}'></input>
       </view>
-      <view>
-          <button formType="submit">保存</button>
-          <button bindtap="cancelEditRoom">取消</button>
+      <view class='btnGroup'>
+          <button class='btn' size='mini' formType="submit">保存</button>
+          <button class='btn' size='mini' bindtap="cancelEditRoom">取消</button>
       </view>
     </form>
   </view>

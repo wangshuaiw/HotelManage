@@ -16,11 +16,51 @@
   color: #aaa;
 }
 
+
+
 .myhotel {
-  margin: 50rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  margin: 20rpx;
+  margin-bottom: 75rpx;
+}
+
+.share{
+  float: right;
+  background-color:  #f1f1f1;
+}
+
+.share::after {
+  border: 0; 
+}
+
+.share .shareImg{
+  width: 30rpx; 
+  height: 30rpx;
+}
+
+.share .shareText{
+  font-size: small;
+  color: gray;
+}
+
+.modify{
+  margin: 20rpx;
+}
+
+.modify .title{
+  color: gray;
+  font-size: small;
+}
+
+.modify .content{
+  padding-left: 40rpx;
+  background-color: white;
+  border-radius:10rpx;
+  margin-bottom: 12rpx;
+}
+
+.modify .textA{
+  height: 92rpx;
+  width: 675rpx;
 }
 
 .show{
@@ -30,4 +70,32 @@
 .hide{
   height: 0;
   overflow: hidden;
+}
+
+.roomTitle{
+  margin:20rpx;
+  /*font-weight:bold;*/
+}
+
+.room{
+  background-color:#fff;
+  border:1rpx solid #f6f6f6;
+  border-radius:10rpx;
+  margin:20rpx;
+}
+
+.btnGroup{
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.btnGroup .btn{
+  width: 250rpx;
+  margin-top: 10rpx;
+}
+
+.marginTop{
+  margin-top: 12rpx;
 }
