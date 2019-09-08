@@ -1,0 +1,115 @@
+/* pages/order/order.wxss */
+.padding-left-no{
+  padding-left: 1rpx;
+}
+
+.padding-right-no{
+  padding-right: 1rpx;
+}
+
+.full{
+  width: 100%;
+  height: 100%
+}
+
+.full_width{
+  width: 100%
+}
+
+.camera{
+  widows: 100%;
+  height: 85%;
+}
+
+.cameraElse{
+  widows: 100%;
+  height: 15%;
+}
+
+.big_font_size{
+  font-size: 48rpx;
+}
+
+.underline{
+  text-decoration:underline;
+}
+
+.row{
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  margin:20rpx;
+  vertical-align: bottom
+}
+
+.bigText{
+  font-size: large
+}
+
+.smallText{
+  font-size: small;
+}
+
+.roomblock{
+  position:relative;
+}
+
+.roomblockwidth{
+  width: 152.5rpx;
+  position:relative;
+}
+
+.float{
+  position:absolute;
+  right:0px;
+  top:0px;
+}
+
+.dateholder{
+  margin: 10rpx;
+}
+
+.smallTextTop{
+  font-size: small;
+  position: relative;
+  top: -24rpx;
+}
+
+
+.leftMargin10{
+  margin-left: 10rpx
+}
+
+.leftMargin20{
+  margin-left: 20rpx
+}
+
+.leftMargin50{
+  margin-left: 50rpx
+}
+
+.block{
+  width: 175rpx;
+  height: 150rpx;
+}
+
+.rowholder{
+    margin: 10rpx;
+    padding: 0 20rpx;
+    text-align: center;
+    background-color: rgb(12, 211, 128);
+    color: white
+}
+
+.page__hd {
+    padding: 15rpx;
+}
+.page__bd {
+    padding-bottom: 40rpx;
+}
+
+.page__bd_spacing {
+    padding-left: 30rpx;
+    padding-right: 30rpx;
+}

@@ -1,0 +1,178 @@
+<!--
+<view wx:if="{{showCamera}}">
+  <camera class='camera' device-position="back" flash="off" binderror="error"></camera>
+  <view class='btnGroup'>
+    <button class='btn' bindtap="takePhoto">拍照</button>
+    <button class='btn' bindtap="cancelPhoto">取消</button>
+  </view>
+</view>
+-->
+
+<form bindsubmit="save">
+  <view class="cu-form-group margin-top" bindtap='tapDatepicker'>
+    <view>
+      <text class='text-xl'>{{beginMonth}}月{{beginDay}}日</text>
+      <!--<text class='text-sm margin-left-xs'>今天</text>-->
+      <text class='text-xl margin-left-sm margin-right-sm'>——</text>
+      <text class='text-xl'>{{endMonth}}月{{endDay}}日</text>
+      <!--<text class='text-sm margin-left-xs'>周一</text>-->
+    </view>
+    <view>
+      <text class='text-sm'>共</text>
+      <text class='text-xl margin-left-xs'>{{bookinNight}}</text>
+      <text class='text-sm margin-left-xs'>晚</text>
+    </view>
+  </view>
+  <view class="cu-form-group " bindtap='showRoomSelect'>
+    <view wx:if='{{!hasSelectRooms}}'>
+      <view class="title text-gray">选择房间</view>
+    </view>
+    <view wx:else>
+      <text class='text-xl'>{{selectRoom.roomNo}}</text>
+      <text class='text-sm margin-left-sm'>{{selectRoom.roomTypeName}}</text>
+    </view>
+    <!--
+    <view wx:else class='grid col-3 full_width'>
+      <view wx:for='{{selectRooms}}' wx:key='id' class='{{index<4?"padding-top-xs":""}} {{index%4==0?"":"padding-left-xs"}} {{index%4==3?"":"padding-right-xs"}} padding-bottom-xs'>
+        <view  class='roomblock bg-gray text-center padding-xs'>
+          <view class='text-xl'>{{item.roomNo}}</view>
+          <view class='text-xs'>{{item.roomTypeName}}</view>
+          <view class='cuIcon-close float' catchtap='deleteSelectRoom' data-index='{{index}}'></view>
+        </view>
+      </view>
+    </view>
+    -->
+  </view>
+  <view class="cu-form-group">
+    <view class="title">价 格</view>
+		<input type='digit' name="price" placeholder="0.00" value='{{price}}'></input>
+    <view class="title">押 金</view>
+		<input type='digit' name="deposit" placeholder="0.00" value='{{deposit}}'></input>
+  </view>
+  <view wx:for='{{guests}}' wx:key='{{index}}' class="cu-form-group">
+    <view class='full_width'>
+      <view class="cu-form-group padding-left-no padding-right-no">
+        <view class='title'>入住人{{index+1}}</view>
+        <view class='text-green'>
+          <text class='cuIcon-camera big_font_size padding-sm' data-index='{{index}}' bindtap='showCamera'></text>
+          <text class='cuIcon-close big_font_size padding-xs margin-left-sm' data-index='{{index}}' bindtap='deleteGuest'></text>
+        </view>
+      </view>
+      <view class="cu-form-group">
+        <view class="title">姓名</view>
+		    <input type='text' name='name{{index}}' placeholder="输入姓名" value='{{item.name}}' 
+               bindblur='onInput' data-index='{{index}}' data-field='name'></input>
+        <!--<view class="title">性别</view>-->
+        <!--<view>
+          <label>男</label>
+          <switch name="gender" class='switch-sex margin-left-sm margin-right-sm' checked='true'></switch>
+          <label>女</label>
+        </view>-->
+        <radio-group name='gender{{index}}' bindchange='changeGender' data-index='{{index}}'>
+          <radio class='radio margin-right-xs' value='0' checked='{{item.gender==0}}'></radio>
+          <label class='title'>男</label>
+          <radio class='radio margin-right-xs margin-left-sm' value='1' checked='{{item.gender==1}}'></radio>
+          <label class='title'>女</label>
+        </radio-group>
+		    <!--<input placeholder="输入性别">{{item.gender}}</input>-->
+      </view>
+      <view class="cu-form-group">
+        <view class="title">联系号码</view>
+		    <input name='mobile{{index}}' placeholder="输入联系号码" value='{{item.mobile}}' 
+               bindblur='onInput' data-index='{{index}}' data-field='mobile'></input>
+      </view>
+      <view class="cu-form-group">
+        <view class="title">身份证号</view>
+		    <input name='certId{{index}}' placeholder="输入身份证号" value='{{item.certId}}' 
+               bindblur='onInput' data-index='{{index}}' data-field='certId'></input>
+      </view>
+      <view class="cu-form-group">
+        <view class="title">联系地址</view>
+		    <input name='address{{index}}' placeholder="输入联系地址" value='{{item.address}}'
+               bindblur='onInput' data-index='{{index}}' data-field='address'></input>
+      </view>
+    </view>
+  </view>
+  <view class="cu-form-group">
+    <view class='title text-green' bindtap='addGuest'>
+      <text class='cuIcon-add'></text>
+      <text>添加入住人</text>
+    </view>
+  </view>
+  <view class="cu-form-group">
+    <textarea name='remark' maxlength="-1" placeholder="输入其他事项" value='{{remark}}'></textarea>
+  </view>
+  <view wx:if="{{type!=0}}" class='cu-form-group'>
+    <button class='cu-btn lg bg-green full_width' formType="submit">保存</button>
+  </view>
+  <view wx:elif="{{id==0}}" class='cu-form-group'>
+    <button class='cu-btn lg bg-green margin-left-xl' data-type='1' formType="submit">预定</button>
+    <button class='cu-btn lg bg-green margin-right-xl' data-type='2' formType="submit">入住</button>
+  </view>
+  <view wx:elif="{{status==1}}" class='cu-form-group'>
+    <button class='cu-btn lg bg-green' bindtap='cancel'>取消</button>
+    <button class='cu-btn lg bg-green' data-type='1' formType="submit">修改</button>
+    <button class='cu-btn lg bg-green' data-type='2' formType="submit">入住</button>
+  </view>
+  <view wx:elif="{{status==2}}" class='cu-form-group'>
+    <button class='cu-btn lg bg-green' bindtap='cancel'>取消</button>
+    <button class='cu-btn lg bg-green' data-type='2' formType="submit">修改</button>
+    <button class='cu-btn lg bg-green' bindtap='checkout'>离店</button>
+  </view>
+  
+</form>
+
+<view class="cu-modal bottom-modal {{showDatePicker? 'show' : ''}}" bindtap='hideDatePicker'>
+  <view class="cu-dialog" catchtap >
+    <calendar  id="myCalendar"	beginYear='{{beginYear}}' 
+                                beginMonth='{{beginMonth}}' 
+                                beginDay='{{beginDay}}'
+                                endYear='{{endYear}}'
+                                endMonth='{{endMonth}}'
+                                endDay='{{endDay}}'
+                                bindtapDate='tapDate'></calendar>
+  </view>
+</view>
+
+<view class="cu-modal {{showRoomSelect? 'show' : ''}}" bindtap='hideRoomSelect'>
+  <view class="cu-dialog" catchtap='none' >
+    <view class="cu-bar bg-white justify-end">
+      <view class="content">选择房间</view>
+      <view class="action" bindtap="hideRoomSelect">
+        <text class="cuIcon-close"></text>
+      </view>
+    </view>
+    <view wx:if='{{loadingRoomsStatus=="loading"}}'>
+      <view class='cu-load bg-gray loading padding-xs'></view>
+    </view>
+    <view wx:elif='{{loadingRoomsStatus=="fail"}}'>
+      <view class='bg-gray padding text-blue underline' bindtap='getRooms'>加载失败，请重试</view>
+    </view>
+    <view wx:else>
+      <view class='cu-list grid col-4 padding-xs'>
+        <view wx:for='{{rooms.rooms}}' wx:key='id' class='padding-xs'>
+          <view class='padding {{item.selected? "bg-green text-write":(item.status==1||item.status==2? "bg-red text-write":"bg-gray text-black")}}' bindtap='selectRoom' data-index='{{index}}'>
+            <view class='text-xl'>{{item.roomNo}}</view>
+            <view class='text-xs'>{{item.roomTypeName}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view class="cu-modal {{showCamera? 'show' : ''}}">
+  <view class="cu-dialog full">
+    <camera wx:if='{{showCamera}}' class='camera' device-position="{{isBackDevicePosition?'back':'front'}}" flash="auto" class='camera'></camera>
+    <view class='cameraElse bg-black flex justify-between align-center'>
+      <text class='cuIcon-unfold big_font_size margin-left-xl padding' bindtap='hideCamera'></text>
+      <view class='padding'>
+        <button class='cu-btn icon photograph' style='width:100rpx;height:100rpx' bindtap='takePhoto'>
+          <text class='cuIcon-check big_font_size padding-sm'></text>
+        </button>
+      </view>
+      <text class='cuIcon-order big_font_size margin-right-xl padding' bindtap='changeDevicePosition'> </text>
+    </view>
+  </view>
+</view>
+

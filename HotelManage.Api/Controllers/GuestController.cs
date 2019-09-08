@@ -106,14 +106,15 @@ namespace HotelManage.Api.Controllers
 
             IFormFile file = files.Files[0];
             string strBuffer = string.Empty;
+            byte[] buffer;
             using (var stream = file.OpenReadStream())
             {
-                byte[] buffer = new byte[(int)stream.Length];
+                buffer = new byte[(int)stream.Length];
                 stream.Read(buffer,0, (int)stream.Length);
                 strBuffer = Convert.ToBase64String(buffer);
             }
 
-            if(string.IsNullOrEmpty(strBuffer))
+            if (string.IsNullOrEmpty(strBuffer))
             {
                 return new Response<Guest>()
                 {
@@ -183,5 +184,6 @@ namespace HotelManage.Api.Controllers
             }
 
         }
+
     }
 }

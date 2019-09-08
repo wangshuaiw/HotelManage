@@ -8,6 +8,7 @@ namespace HotelManage.DBModel
         public long Id { get; set; }
         public long CheckId { get; set; }
         public string Name { get; set; }
+        public int Gender { get; set; }
         public string CertType { get; set; }
         public string CertId { get; set; }
         public string Mobile { get; set; }

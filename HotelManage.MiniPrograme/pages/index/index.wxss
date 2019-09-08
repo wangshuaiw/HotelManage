@@ -1,25 +1,3 @@
-/**index.wxss
-.userinfo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.userinfo-avatar {
-  width: 128rpx;
-  height: 128rpx;
-  margin: 20rpx;
-  border-radius: 50%;
-}
-
-.userinfo-nickname {
-  color: #aaa;
-}
-
-.usermotto {
-  margin-top: 200px;
-}
-**/
 
 .top{
   display: flex;
@@ -28,6 +6,24 @@
   justify-content: space-between;
   padding: 20rpx 0;
   box-sizing: border-box;
+}
+
+.btnGroup{
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  margin:20rpx;
+}
+
+.btnGroup .btn{
+  border-radius:8rpx;
+  width: 200rpx;
+  /*font-size: small;*/
+  /*
+  color: white;
+  font-weight:bold;
+  */
 }
 
 .room{
@@ -53,14 +49,14 @@
 }
 
 .topInRoom .type{
-  font-size:small;
-  margin-left:10rpx;
+  /*font-size:small;*/
+  margin-left:20rpx;
 }
 
 .topInRoom .status{
-  font-size:small;
-  margin-left:20rpx;
-  flex:1;
+  /*font-size:small;*/
+  margin-right:20rpx;
+  font-weight:bold;
 }
 
 .checkinBackColor{
@@ -80,10 +76,69 @@
   align-items: center;
   flex-direction: row;
   flex-wrap: nowrap;
-  font-size: small;
-  padding: 10rpx 20rpx;
+  /*font-size: small;*/
+  padding: 6rpx 20rpx;
 }
 
-.infoInRoom .beforeLast{
+.beforeLast{
   flex:1;
 }
+
+.mobile{
+  width: 320rpx;
+}
+
+.drawer_screen { 
+  width: 100%; 
+  height: 100%; 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  z-index: 1000; 
+  background: #000; 
+  opacity: 0.5; 
+  overflow: hidden; 
+} 
+
+.drawer_box { 
+  width: 650rpx; 
+  overflow: hidden; 
+  position: fixed; 
+  top: 50%; 
+  left: 0; 
+  z-index: 1001; 
+  background: #FAFAFA; 
+  margin: -150px 50rpx 0rpx 50rpx; 
+  border-radius: 3px; 
+} 
+  
+.drawer_title{ 
+  padding:15px; 
+  font: 20px "microsoft yahei"; 
+  text-align: center; 
+} 
+.drawer_content { 
+  padding-left: 40rpx;
+  height: 200rpx; 
+  overflow-y: scroll; /*超出父盒子高度可滚动*/
+} 
+
+.timePicker{
+  margin-left: 40rpx;
+  margin-top: 40rpx;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.picker{
+  height: 60rpx;
+  line-height: 60rpx;
+  padding: 0 20rpx;
+  margin-right: 16rpx;
+  margin-bottom: 16rpx;
+  border: 1rpx solid black;
+  border-radius: 10rpx;
+}
+ 

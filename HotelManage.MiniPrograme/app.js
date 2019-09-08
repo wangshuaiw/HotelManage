@@ -86,7 +86,9 @@ App({
     })
   },
   globalData: {
-    url:'http://106.12.19.234/api/',
+    //url:'https://xiaolvguanjia.xyz/api/',
+    //url:'https://127.0.0.1:5001/api/',
+    url: 'http://192.168.31.242:80/api/',
     userInfo: null,
     hotel: null,
     token:null

@@ -72,21 +72,62 @@
     </form>
   </view>
 
-  <view>
-    <text class='roomTitle' decode="{{true}}" >房&emsp;&emsp;间：</text>
+  <view wx:if="{{hasHotel}}">
+    <view>
+      <view class='roomTitle'>
+        <text class='beforeRight' decode="{{true}}" >房&emsp;&emsp;间：</text>
+        <text wx:if='{{manageRoom}}' class='roomTitleBtn' bindtap='addRoom'>添加房间</text>
+        <text wx:if='{{manageRoom}}' class='roomTitleBtn' bindtap='completeManageRooms'>完成</text>
+        <text wx:if='{{!manageRoom}}' class='roomTitleBtn' bindtap='manageRooms'>管理</text>
+      </view>
+      <view wx:if='{{manageRoom&&!showAddRoom}}' class='roomTitle'>
+          <text wx:if='{{!selectAll}}' class='roomTitleBtn' bindtap='selectAllFunc' >全选</text>
+          <text wx:else class='roomTitleBtn' bindtap='selectNoneFunc' >取消全选</text>
+          <text class='beforeRight'></text>
+          <text class='roomTitleBtn' bindtap='delCheckedRooms'>删除</text>
+      </view>
+    </view>
+
+    <view wx:if="{{showAddRoom&&manageRoom}}" class='modify'>
+      <form bindsubmit="editRoomSubmit">
+        <view>
+          <view class='title'>房间编号:</view>
+          <input class='content' name="roomNo" placeholder="请输入房间编号" value='{{selectRoom.roomNo}}'></input>
+        </view>
+        <view>
+          <view class='title'>房间类型:</view>
+          <picker class='content' name="roomType" bindchange="bindRoomTypeChange" range="{{roomTypes}}" range-key="value">
+            <view>{{selectRoomType.value}}</view>
+          </picker>
+        </view>
+        <view>
+          <view class='title'>备注说明:</view>
+          <input class='content' name="remark" placeholder="房间其他信息可写在这里" value='{{selectRoom.remark}}'></input>
+        </view>
+        <view class='btnGroup'>
+            <button class='btn' size='mini' data-type='add' formType="submit">保存</button>
+            <button class='btn' size='mini' bindtap="cancelAddRoom">取消</button>
+        </view>
+      </form>
+    </view>
+    
     <!--<view class='roomTitle' decode="{{true}}">房间:</view>-->
+    <checkbox-group bindchange="checkboxChange">
     <view class='room' wx:for="{{rooms}}" wx:key="id">
-      <view bindtap='tapRoom' bindlongpress='longPressRoom'>{{item.roomNo}} -- {{item.roomTypeName}}</view>
-      <!--<view class='btnGroup'>
-        <button type='primary' size='mini' class='btn' bindtap="updateRoom" data-item="{{item}}">修改</button>
-        <button type='primary' size='mini' class='btn' bindtap="deleteRoom" data-item="{{item}}">删除</button>
-      </view>-->
+      <view class='content'>
+        <checkbox wx:if='{{manageRoom&&!item.edit}}' value='{{index}}' checked='{{item.checked}}' color='gray'></checkbox>
+        <view wx:if="{{!item.edit}}" class='beforeRight' bindtap='tapRoom' bindlongpress='longPressRoom' data-index="{{index}}">
+          {{item.roomNo}} -- {{item.roomTypeName}}
+        </view>
+        <view wx:if='{{manageRoom&&!item.edit}}' class='roomTitleBtn' bindtap='updateRoom' data-index="{{index}}">修改</view>
+      </view>
 
       <view wx:if="{{item.edit}}" class='modify'>
         <form bindsubmit="editRoomSubmit">
+          <input class='hidden' name='id' value='{{item.id}}'></input>
           <view>
             <view class='title'>房间编号:</view>
-            <input class='content' name="roomNo" placeholder="请输入房间编号" value='{{selectRoom.roomNo}}'></input>
+            <input class='content' name="roomNo" placeholder="请输入房间编号" value='{{item.roomNo}}'></input>
           </view>
           <view>
             <view class='title'>房间类型:</view>
@@ -96,41 +137,20 @@
           </view>
           <view>
             <view class='title'>备注说明:</view>
-            <input class='content' name="remark" placeholder="房间其他信息可写在这里" value='{{selectRoom.remark}}'></input>
+            <input class='content' name="remark" placeholder="房间其他信息可写在这里" value='{{item.remark}}'></input>
           </view>
           <view class='btnGroup'>
-              <button class='btn' size='mini' formType="submit">保存</button>
-              <button class='btn' size='mini' bindtap="cancelEditRoom">取消</button>
+              <button class='btn' size='mini' data-type='update' formType="submit">保存</button>
+              <button class='btn' size='mini' data-index="{{index}}" bindtap="cancelEditRoom">取消</button>
           </view>
         </form>
       </view>
-
     </view>
-    <button wx:if="{{hasHotel}}" bindtap="addRoom">添加房间</button>
+    </checkbox-group>
+    <!--<button wx:if="{{hasHotel}}" bindtap="addRoom">添加房间</button>-->
   </view>
 
-  <view wx:if="{{editRoom==1||editRoom==2}}" class='modify'>
-    <form bindsubmit="editRoomSubmit">
-      <view>
-        <view class='title'>房间编号:</view>
-        <input class='content' name="roomNo" placeholder="请输入房间编号" value='{{selectRoom.roomNo}}'></input>
-      </view>
-      <view>
-        <view class='title'>房间类型:</view>
-        <picker class='content' name="roomType" bindchange="bindRoomTypeChange" range="{{roomTypes}}" range-key="value">
-          <view>{{selectRoomType.value}}</view>
-        </picker>
-      </view>
-      <view>
-        <view class='title'>备注说明:</view>
-        <input class='content' name="remark" placeholder="房间其他信息可写在这里" value='{{selectRoom.remark}}'></input>
-      </view>
-      <view class='btnGroup'>
-          <button class='btn' size='mini' formType="submit">保存</button>
-          <button class='btn' size='mini' bindtap="cancelEditRoom">取消</button>
-      </view>
-    </form>
-  </view>
+  
 
 </view>
   

@@ -67,10 +67,12 @@ namespace HotelManage.BLL
                 string name = jObject["words_result"]["姓名"]["words"].ToString();
                 string certId = jObject["words_result"]["公民身份号码"]["words"].ToString();
                 string address = jObject["words_result"]["住址"]["words"].ToString();
+                string gender = jObject["words_result"]["性别"]["words"].ToString();
 
                 return new KeyValuePair<Guest, string>(new Guest()
                 {
                     Name = name,
+                    Gender = (gender == "男" ? 0 : 1),
                     CertId = certId,
                     Address = address
                 }, "解析成功");

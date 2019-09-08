@@ -1,63 +1,116 @@
 <!--index.wxml-->
 <view class="container">
   <view wx:if="{{!hasHotel}}">
-    <view>你还没有添加宾馆，请到我的页面添加宾馆(此处应该有剪头指向右下角)</view>
+    <view>你还没有添加宾馆，请到我的页面添加宾馆，右下角的那个</view>
   </view>
   <view wx:else>
     <view class="top">
-      <view>{{hotel.name}}</view>
-      <picker mode="date" value="{{date}}" bindchange="dateChange" >
-            <view>{{date}}</view>
+      <view class='text-xl text-bold'>{{hotel.name}}</view>
+      <picker class='solid padding-xs margin-top-xs radius' mode="date" value="{{date}}" bindchange="dateChange" >
+            <view><text>{{date}}</text><text class='cuIcon-search margin-left-xs'></text></view>
       </picker>
     </view>
+    <view class='btnGroup'>
+      <button class='btn bg-green text-df' bindtap='tapReserve'>预 定</button>
+      <button class='btn bg-green text-df' bindtap='tapCheckin'>入 住</button>
+    </view>
     
-    <view wx:for="{{rooms}}" wx:key="roomId" class="room">
+    <view wx:for="{{rooms}}" wx:key="roomId" class="room" data-item='{{item}}' bindtap='tapRoom' bindlongpress='longPressRoom'>
       <block wx:if="{{item.status==1}}">
-        <view class='topInRoom, reserveBackColor'>
-          <view class='no'>{{item.roomNo}}</view>
-          <view class='type'>{{item.roomTypeName}}</view>
-          <view class="status">--已预定</view>
-          <navigator class='detail' url="/pages/status/status?id={{item.id}}&roomId={{item.roomId}}&date={{date}}">详细</navigator>
+        <view class='topInRoom bg-yellow'>
+          <view class='no text-lg'>{{item.roomNo}}</view>
+          <view class='type beforeLast text-sm'>{{item.roomTypeName}}</view>
+          <view class="status">已预定</view>
         </view>
         <block wx:for="{{item.guests}}" wx:for-item="guest" wx:key="id">
+          <view class='flex justify-between padding-left-sm padding-right-sm padding-top-xs'>
+            <view>{{guest.name}}</view>
+            <view class='margin-right' wx:if='{{guest.mobile}}'>手机号：{{guest.mobile}}</view>
+          </view>
+          <!--
           <view class='infoInRoom'>
             <view class='beforeLast'>{{guest.name}}</view>
-            <!--<view>{{guest.certTypeName}}:{{guest.certId}}</view>-->
-            <view>手机号:{{guest.mobile}}</view>
+            <view class='mobile' wx:if='{{guest.mobile}}'>手机号：{{guest.mobile}}</view>
           </view>
+          -->
         </block>
-        <view class='infoInRoom'>
-            <view>预计到店时间:{{item.planedCheckinTime}}</view>
+        <view class="flex justify-between padding-left-sm padding-right-sm padding-top-xs">
+          <view>{{item.planedCheckinTime}} — {{item.planedCheckoutTime}}</view>
+          <view class='margin-right'>共 {{item.night}} 晚</view>
         </view>
       </block>
       <block wx:elif="{{item.status==2}}">
-        <view class='topInRoom, checkinBackColor'>
-          <view class='no'>{{item.roomNo}}</view>
-          <view class='type'>{{item.roomTypeName}}</view>
-          <view class="status">--已入住</view>
-          <navigator class='detail' url="/pages/status/status?id={{item.id}}&roomId={{item.roomId}}&date={{date}}">详细</navigator>
+        <view class='topInRoom bg-orange'>
+          <view class='no text-lg'>{{item.roomNo}}</view>
+          <view class='type beforeLast text-sm'>{{item.roomTypeName}}</view>
+          <view class="status">已入住</view>
         </view>
         <block wx:for="{{item.guests}}" wx:for-item="guest" wx:key="id">
-          <view class='infoInRoom'>
-            <view class='beforeLast'>{{guest.name}}</view>
-            <view>手机号:{{guest.mobile}}</view>
+          <view class='flex justify-between padding-left-sm padding-right-sm padding-top-xs'>
+            <view>{{guest.name}}</view>
+            <view class='margin-right' wx:if='{{guest.mobile}}'>手机号：{{guest.mobile}}</view>
           </view>
         </block>
-        <view class='infoInRoom'>
-          <view>预计离店时间:{{item.planedCheckoutTime}}</view>
+        <view class="flex justify-between padding-left-sm padding-right-sm padding-top-xs">
+          <view>{{item.checkinTime}} — {{item.planedCheckoutTime}}</view>
+          <view class='margin-right'>共 {{item.night}} 晚</view>
         </view>
-        <view class='infoInRoom'>
-          <view>押金:{{item.deposit}}</view>
+        <view class='padding-left-sm padding-right-sm padding-top-xs' wx:if="{{item.deposit}}">
+          押金：{{item.deposit}}
+        </view>
+      </block>
+      <block wx:elif="{{item.status==3}}">
+        <view class='topInRoom bg-red'>
+          <view class='no text-lg'>{{item.roomNo}}</view>
+          <view class='type beforeLast text-sm'>{{item.roomTypeName}}</view>
+          <view class="status">已离店</view>
+        </view>
+        <block wx:for="{{item.guests}}" wx:for-item="guest" wx:key="id">
+          <view class='flex justify-between padding-left-sm padding-right-sm padding-top-xs'>
+            <view>{{guest.name}}</view>
+            <view class='margin-right' wx:if='{{guest.mobile}}'>手机号：{{guest.mobile}}</view>
+          </view>
+        </block>
+        <view class="flex justify-between padding-left-sm padding-right-sm padding-top-xs">
+          <view>{{item.checkinTime}} — {{item.checkoutTime}}</view>
+          <view class='margin-right'>共 {{item.night}} 晚</view>
+        </view>
+        <view class='padding-left-sm padding-right-sm padding-top-xs' wx:if="{{item.prices}}">
+          房费：{{item.prices}}
         </view>
       </block>
       <block wx:else>
-        <view class='topInRoom, noCheckBackColor'>
-          <view class='no'>{{item.roomNo}}</view>
-          <view class='type'>{{item.roomTypeName}}</view>
-          <view class="status">--在空着</view>
-          <navigator class='detail' url="/pages/status/status?id={{item.id}}&roomId={{item.roomId}}&date={{date}}">详细</navigator>
+        <view class='topInRoom bg-green '>
+          <view class='no text-lg'>{{item.roomNo}}</view>
+          <view class='type beforeLast text-sm'>{{item.roomTypeName}}</view>
+          <view class="status">在空着</view>
         </view>
       </block>
     </view>
   </view>
+</view>
+
+<!--自定义离店模态窗口-->
+<!--mask-->
+<view class="drawer_screen" bindtap="tapPowerDrawer" data-statu="close" wx:if="{{showCheckoutModal}}"></view> 
+<!--content-->
+<!--使用animation属性指定需要执行的动画-->
+<view animation="{{animationData}}" class="drawer_box" wx:if="{{showCheckoutModal}}"> 
+  <!--drawer content-->
+  <view class="drawer_title">确认离店</view> 
+  <view class="drawer_content"> 
+    <view>离店时间：</view>
+    <view class='timePicker' >
+      <picker mode="date" value="{{checkoutDate}}" bindchange="checkoutDateChange">
+        <view class='picker'>{{checkoutDate}}</view>
+      </picker>
+      <picker mode="time" value="{{checkoutTime}}" bindchange="checkoutTimeChange">
+        <view class='picker'>{{checkoutTime}}</view>
+      </picker>
+    </view>
+  </view>
+  <view class='btnGroup'>
+    <button class='btn' bindtap='tapCheckout'>确 定</button>
+    <button class='btn' bindtap="tapPowerDrawer" data-statu="close">取 消</button>
+  </view> 
 </view>

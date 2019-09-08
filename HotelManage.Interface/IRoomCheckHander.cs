@@ -10,6 +10,15 @@ namespace HotelManage.Interface
     public interface IRoomCheckHander:IHotelManageHander<Roomcheck>
     {
         /// <summary>
+        /// 指定时间内的房间状态
+        /// </summary>
+        /// <param name="hotelId"></param>
+        /// <param name="beginTime"></param>
+        /// <param name="endTime"></param>
+        /// <returns></returns>
+        List<RoomStatusBasicResponse> GetRoomsStatusBasicInfo(int hotelId, DateTime beginTime, DateTime endTime, long? checkId);
+
+        /// <summary>
         /// 获取当前房间状态
         /// </summary>
         /// <param name="hotelId"></param>
@@ -22,7 +31,7 @@ namespace HotelManage.Interface
         /// <param name="hotelId"></param>
         /// <param name="date"></param>
         /// <returns></returns>
-        List<RoomStatusRespones> GetRoomHistoryCheckin(int hotelId, DateTime date, int freeChenkinTime, int freeCheckoutTime);
+        List<RoomStatusRespones> GetRoomHistoryCheckin(int hotelId, DateTime date);
 
         /// <summary>
         /// 获取未来预定情况
@@ -32,7 +41,7 @@ namespace HotelManage.Interface
         /// <param name="freeChenkinTime"></param>
         /// <param name="freeCheckoutTime"></param>
         /// <returns></returns>
-        List<RoomStatusRespones> GetRoomFutureReserve(int hotelId, DateTime date, int freeChenkinTime, int freeCheckoutTime);
+        List<RoomStatusRespones> GetRoomFutureReserve(int hotelId, DateTime date);
 
         /// <summary>
         /// 根据Id获取入住情况
@@ -54,7 +63,7 @@ namespace HotelManage.Interface
         /// <param name="roomId"></param>
         /// <param name="date"></param>
         /// <returns></returns>
-        RoomStatusRespones GetRoomHistoryCheckinByRoomId(int roomId, DateTime date, int freeChenkinTime, int freeCheckoutTime);
+        RoomStatusRespones GetRoomHistoryCheckinByRoomId(int roomId, DateTime date);
 
         /// <summary>
         /// 根据房间ID和日期获取未来预定情况
@@ -62,7 +71,7 @@ namespace HotelManage.Interface
         /// <param name="roomId"></param>
         /// <param name="date"></param>
         /// <returns></returns>
-        RoomStatusRespones GetRoomFutureReserveByRoomId(int roomId, DateTime date, int freeChenkinTime, int freeCheckoutTime);
+        RoomStatusRespones GetRoomFutureReserveByRoomId(int roomId, DateTime date);
 
         /// <summary>
         /// 添加订单
@@ -78,6 +87,13 @@ namespace HotelManage.Interface
         /// <param name="check"></param>
         /// <param name="manager"></param>
         KeyValuePair<bool, string> UpdateCheck(Roomcheck check, string manager);
+
+        /// <summary>
+        /// 修改订单
+        /// </summary>
+        /// <param name="check"></param>
+        /// <param name="manager"></param>
+        KeyValuePair<bool, string> UpdateCheck(Roomcheck check, List<Guest> guests, string manager);
 
         /// <summary>
         /// 取消订单

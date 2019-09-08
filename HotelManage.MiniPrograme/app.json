@@ -1,12 +1,13 @@
 {
   "pages": [
-    "pages/mypage/mypage",
     "pages/index/index",
+    "pages/mypage/mypage",
     "pages/status/status",
     "pages/room/room",
     "pages/login/login",
     "pages/loginerror/loginerror",
-    "pages/camera/camera"
+    "pages/camera/camera",
+    "pages/order/order"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -14,7 +15,7 @@
     "navigationBarTitleText": "我家的宾馆",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#EBEBEB",
-    "enablePullDownRefresh":true
+    "enablePullDownRefresh": true
   },
   "tabBar": {
     "list": [
@@ -37,5 +38,6 @@
         "selectedIconPath": "image/ic_my_ck.png"
       }
     ]
-  }
+  },
+  "sitemapLocation": "sitemap.json"
 }

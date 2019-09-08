@@ -1,11 +1,17 @@
 /**app.wxss**/
+@import "style/colorUI/main.wxss";
+@import "style/colorUI/icon.wxss";
+
 page{
     background-color: #f1f1f1;
 }
 
 .container {
   margin-top:20rpx;
+  font-size: 30rpx;
 }
+
+
 
 /*
 .container {

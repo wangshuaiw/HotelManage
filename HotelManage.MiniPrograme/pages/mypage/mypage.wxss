@@ -16,7 +16,9 @@
   color: #aaa;
 }
 
-
+.hidden{
+  display: none;
+}
 
 .myhotel {
   margin: 20rpx;
@@ -75,6 +77,21 @@
 .roomTitle{
   margin:20rpx;
   /*font-weight:bold;*/
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  
+}
+
+.roomTitleBtn{
+  font-size: small;
+  color: gray;
+  padding-right: 45rpx;
+}
+
+.beforeRight{
+  flex:1;
 }
 
 .room{
@@ -82,6 +99,19 @@
   border:1rpx solid #f6f6f6;
   border-radius:10rpx;
   margin:20rpx;
+}
+
+.room .content{
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.checkbox{
+  height: 20rpx;
+  width: 20rpx;
+  background-color: #f6f6f6
 }
 
 .btnGroup{

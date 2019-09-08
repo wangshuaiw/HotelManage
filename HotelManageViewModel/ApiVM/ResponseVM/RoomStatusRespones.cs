@@ -33,6 +33,7 @@ namespace HotelManage.ViewModel.ApiVM.ResponseVM
         public long Id { get; set; }
         public long CheckId { get; set; }
         public string Name { get; set; }
+        public int Gender { set; get; }
         public string CertType { get; set; }
         public string CertTypeName { get; set; }
         public string CertId { get; set; }

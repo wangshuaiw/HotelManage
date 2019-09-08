@@ -59,7 +59,7 @@ namespace HotelManage.BLL
         /// <returns></returns>
         public List<Room> GetRooms(int hotelID)
         {
-            return base.GetList(r => !r.IsDel.Value && r.HotelId == hotelID);
+            return base.GetList(r => !r.IsDel.Value && r.HotelId == hotelID).OrderBy(r=>r.RoomNo).ToList();
         }
 
         /// <summary>

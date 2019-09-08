@@ -16,6 +16,13 @@ const formatData=date=>{
   return [year, month, day].map(formatNumber).join('-')
 }
 
+const formatYueRi = date => {
+  //const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  return month.toString()+'月'+day.toString()+'日'
+}
+
 const formatOnlyHourMinite=date=>{
   const hour = date.getHours()
   const minute = date.getMinutes()
@@ -41,5 +48,6 @@ module.exports = {
   formatTime: formatTime,
   formatDate: formatData,
   formatOnlyHourMinite: formatOnlyHourMinite,
-  formatTimeNoSecond: formatTimeNoSecond
+  formatTimeNoSecond: formatTimeNoSecond,
+  formatYueRi: formatYueRi
 }

@@ -16,6 +16,45 @@ namespace HotelManage.BLL
         { }
 
         /// <summary>
+        /// 指定时间内的房间状态
+        /// </summary>
+        /// <param name="hotelId"></param>
+        /// <param name="beginTime"></param>
+        /// <param name="endTime"></param>
+        /// <returns></returns>
+        public List<RoomStatusBasicResponse> GetRoomsStatusBasicInfo(int hotelId,DateTime beginTime,DateTime endTime, long? checkId)
+        {
+            
+            DateTime thisFreeCheckoutDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DbConst.SettlementHour, 0, 0);
+            var rooms = HotelContext.Room.Where(r => !r.IsDel.Value && r.HotelId == hotelId).OrderBy(r => r.RoomNo).ToList();
+            var roomTypes = HotelContext.Hotelenum.Where(e => !e.IsDel.Value && e.EnumClass == DbConst.RoomTypeEnumClass).ToList();
+            var checks = HotelContext.Roomcheck.Where(
+                c => rooms.Any(r => r.Id == c.RoomId)
+                && !c.IsDel.Value
+                && c.Status == (int)RoomStatus.Checkin
+                && c.CheckinTime < endTime
+                && ( (c.PlanedCheckoutTime > beginTime && c.PlanedCheckoutTime > DateTime.Now)||(c.PlanedCheckoutTime <= DateTime.Now && thisFreeCheckoutDateTime.AddDays(1) > beginTime) )
+                && c.Id != checkId
+                );
+            var reserves = HotelContext.Roomcheck.Where(
+                c => rooms.Any(r => r.Id == c.RoomId)
+                && !c.IsDel.Value
+                && c.Status == (int)RoomStatus.Reserved
+                && c.PlanedCheckinTime >= DateTime.Now.Date
+                && c.PlanedCheckinTime < endTime
+                && c.PlanedCheckoutTime > beginTime
+                && c.Id != checkId
+                );
+            return rooms.Select(r => new RoomStatusBasicResponse()
+            {
+                Id = r.Id,
+                RoomNo = r.RoomNo,
+                RoomTypeName = roomTypes.FirstOrDefault(t => t.FullKey == r.RoomType) == null ? "" : roomTypes.FirstOrDefault(t => t.FullKey == r.RoomType).Name,
+                Status = checks.Any(c => c.RoomId == r.Id) ? (int)RoomStatus.Checkin : (reserves.Any(c => c.RoomId == r.Id) ? (int)RoomStatus.Reserved : (int)RoomStatus.Init)
+            }).ToList();
+        }
+
+        /// <summary>
         /// 获取当前房间状态
         /// </summary>
         /// <param name="hotelId"></param>
@@ -23,7 +62,7 @@ namespace HotelManage.BLL
         public List<RoomStatusRespones> GetRoomNowStatus(int hotelId)
         {
             List<RoomStatusRespones> result = new List<RoomStatusRespones>();
-            var rooms = HotelContext.Room.Where(r => !r.IsDel.Value && r.HotelId == hotelId).ToList();
+            var rooms = HotelContext.Room.Where(r => !r.IsDel.Value && r.HotelId == hotelId).OrderBy(r=>r.RoomNo).ToList();
             var roomTypes = HotelContext.Hotelenum.Where(e => !e.IsDel.Value && e.EnumClass == DbConst.RoomTypeEnumClass).ToList();
             var certTypes = HotelContext.Hotelenum.Where(e => !e.IsDel.Value && e.EnumClass == DbConst.CertTypeEnumClass).ToList();
             foreach (Room r in rooms)
@@ -34,7 +73,12 @@ namespace HotelManage.BLL
                     RoomNo = r.RoomNo,
                     RoomTypeName = roomTypes.FirstOrDefault(t => t.FullKey == r.RoomType) == null ? "" : roomTypes.FirstOrDefault(t => t.FullKey == r.RoomType).Name
                 };
-                var check = HotelContext.Roomcheck.FirstOrDefault(o => !o.IsDel.Value && o.RoomId == r.Id && (o.Status == (int)RoomStatus.Checkin || o.Status == (int)RoomStatus.Reserved));
+                //var check = HotelContext.Roomcheck.FirstOrDefault(o => !o.IsDel.Value && o.RoomId == r.Id && (o.Status == (int)RoomStatus.Checkin || o.Status == (int)RoomStatus.Reserved));
+                var check = HotelContext.Roomcheck.FirstOrDefault(o => !o.IsDel.Value && o.RoomId == r.Id && o.Status == (int)RoomStatus.Checkin);
+                if(check==null)
+                {
+                    check = HotelContext.Roomcheck.FirstOrDefault(o => !o.IsDel.Value && o.RoomId == r.Id && o.Status == (int)RoomStatus.Reserved && o.PlanedCheckinTime>DateTime.Now.Date);
+                }
                 if (check != null)
                 {
                     status.Id = check.Id;
@@ -74,12 +118,12 @@ namespace HotelManage.BLL
         /// <param name="freeChenkinTime"></param>
         /// <param name="freeCheckoutTime"></param>
         /// <returns></returns>
-        public List<RoomStatusRespones> GetRoomHistoryCheckin(int hotelId, DateTime date, int freeChenkinTime, int freeCheckoutTime)
+        public List<RoomStatusRespones> GetRoomHistoryCheckin(int hotelId, DateTime date)
         {
-            DateTime freeChenkinDateTime = new DateTime(date.Year, date.Month, date.Day, freeChenkinTime, 0, 0);
-            DateTime freeCheckoutDateTime = new DateTime(date.Year, date.Month, date.Day, freeChenkinTime, 0, 0);
+            DateTime freeChenkinDateTime = new DateTime(date.Year, date.Month, date.Day, DbConst.SettlementHour, 0, 0);
+            DateTime freeCheckoutDateTime = new DateTime(date.Year, date.Month, date.Day, DbConst.SettlementHour, 0, 0);
             List<RoomStatusRespones> result = new List<RoomStatusRespones>();
-            var rooms = HotelContext.Room.Where(r => !r.IsDel.Value && r.HotelId == hotelId).ToList();
+            var rooms = HotelContext.Room.Where(r => !r.IsDel.Value && r.HotelId == hotelId).OrderBy(r=>r.RoomNo).ToList();
             var roomTypes = HotelContext.Hotelenum.Where(e => !e.IsDel.Value && e.EnumClass == DbConst.RoomTypeEnumClass).ToList();
             var certTypes = HotelContext.Hotelenum.Where(e => !e.IsDel.Value && e.EnumClass == DbConst.CertTypeEnumClass).ToList();
             foreach (Room r in rooms)
@@ -92,14 +136,16 @@ namespace HotelManage.BLL
                 };
                 //每日结算点前入住，结算点后离店的和结算点后入住，次日免费入住点前入住的
                 var checks = HotelContext.Roomcheck.Where(
-                    c => !c.IsDel.Value
+                    c => c.RoomId == r.Id
+                    && !c.IsDel.Value
                     && c.Status == (int)RoomStatus.Ckeckout
                     && ((c.CheckinTime <= freeCheckoutDateTime && c.CheckoutTime > freeCheckoutDateTime)
                          || (c.CheckinTime > freeCheckoutDateTime && c.CheckinTime < freeChenkinDateTime.AddDays(1)))
                     ).ToList();
 
                 checks.AddRange(HotelContext.Roomcheck.Where(
-                    c => !c.IsDel.Value
+                    c => c.RoomId == r.Id
+                    && !c.IsDel.Value
                     && c.Status == (int)RoomStatus.Checkin
                     && ((c.CheckinTime <= freeCheckoutDateTime && c.CheckoutTime == null)
                          || (c.CheckinTime > freeCheckoutDateTime && c.CheckinTime < freeChenkinDateTime.AddDays(1)))
@@ -145,12 +191,12 @@ namespace HotelManage.BLL
         /// <param name="freeChenkinTime"></param>
         /// <param name="freeCheckoutTime"></param>
         /// <returns></returns>
-        public List<RoomStatusRespones> GetRoomFutureReserve(int hotelId, DateTime date, int freeChenkinTime, int freeCheckoutTime)
+        public List<RoomStatusRespones> GetRoomFutureReserve(int hotelId, DateTime date)
         {
-            DateTime freeChenkinDateTime = new DateTime(date.Year, date.Month, date.Day, freeChenkinTime, 0, 0);
-            DateTime freeCheckoutDateTime = new DateTime(date.Year, date.Month, date.Day, freeChenkinTime, 0, 0);
+            DateTime freeChenkinDateTime = new DateTime(date.Year, date.Month, date.Day, DbConst.SettlementHour, 0, 0);
+            DateTime freeCheckoutDateTime = new DateTime(date.Year, date.Month, date.Day, DbConst.SettlementHour, 0, 0);
             List<RoomStatusRespones> result = new List<RoomStatusRespones>();
-            var rooms = HotelContext.Room.Where(r => !r.IsDel.Value && r.HotelId == hotelId).ToList();
+            var rooms = HotelContext.Room.Where(r => !r.IsDel.Value && r.HotelId == hotelId).OrderBy(r=>r.RoomNo).ToList();
             var roomTypes = HotelContext.Hotelenum.Where(e => !e.IsDel.Value && e.EnumClass == DbConst.RoomTypeEnumClass).ToList();
             var certTypes = HotelContext.Hotelenum.Where(e => !e.IsDel.Value && e.EnumClass == DbConst.CertTypeEnumClass).ToList();
             foreach (Room r in rooms)
@@ -163,13 +209,15 @@ namespace HotelManage.BLL
                 };
                 //每日结算点前入住，结算点后离店的和结算点后入住，次日免费入住点前入住的
                 var checks = HotelContext.Roomcheck.Where(
-                    c => !c.IsDel.Value
+                    c => c.RoomId == r.Id
+                    && !c.IsDel.Value
                     && c.Status == (int)RoomStatus.Reserved
                     && ((c.PlanedCheckinTime <= freeCheckoutDateTime && c.PlanedCheckoutTime > freeCheckoutDateTime)
                          || (c.PlanedCheckinTime > freeCheckoutDateTime && c.PlanedCheckinTime < freeChenkinDateTime.AddDays(1)))
                     ).ToList();
                 checks.AddRange(HotelContext.Roomcheck.Where(
-                    c => !c.IsDel.Value
+                    c => c.RoomId == r.Id
+                    && !c.IsDel.Value
                     && c.Status == (int)RoomStatus.Checkin
                     && (c.CheckinTime <= freeCheckoutDateTime && c.PlanedCheckoutTime > freeCheckoutDateTime)
                     ));
@@ -242,6 +290,7 @@ namespace HotelManage.BLL
                     Id = g.Id,
                     CheckId = g.CheckId,
                     Name = g.Name,
+                    Gender = g.Gender,
                     CertType = g.CertType,
                     CertTypeName = certTypes.FirstOrDefault(t => t.FullKey == g.CertType) == null ? "" :
                           certTypes.FirstOrDefault(t => t.FullKey == g.CertType).Name,
@@ -306,11 +355,11 @@ namespace HotelManage.BLL
         /// <param name="freeChenkinTime"></param>
         /// <param name="freeCheckoutTime"></param>
         /// <returns></returns>
-        public RoomStatusRespones GetRoomHistoryCheckinByRoomId(int roomId, DateTime date, int freeChenkinTime, int freeCheckoutTime)
+        public RoomStatusRespones GetRoomHistoryCheckinByRoomId(int roomId, DateTime date)
         {
             RoomStatusRespones result = new RoomStatusRespones();
-            DateTime freeChenkinDateTime = new DateTime(date.Year, date.Month, date.Day, freeChenkinTime, 0, 0);
-            DateTime freeCheckoutDateTime = new DateTime(date.Year, date.Month, date.Day, freeChenkinTime, 0, 0);
+            DateTime freeChenkinDateTime = new DateTime(date.Year, date.Month, date.Day, DbConst.SettlementHour, 0, 0);
+            DateTime freeCheckoutDateTime = new DateTime(date.Year, date.Month, date.Day, DbConst.SettlementHour, 0, 0);
             Room room = HotelContext.Room.FirstOrDefault(r => r.Id == roomId && !r.IsDel.Value);
             if (room != null)
             {
@@ -373,11 +422,11 @@ namespace HotelManage.BLL
         /// <param name="freeChenkinTime"></param>
         /// <param name="freeCheckoutTime"></param>
         /// <returns></returns>
-        public RoomStatusRespones GetRoomFutureReserveByRoomId(int roomId, DateTime date, int freeChenkinTime, int freeCheckoutTime)
+        public RoomStatusRespones GetRoomFutureReserveByRoomId(int roomId, DateTime date)
         {
             RoomStatusRespones result = new RoomStatusRespones();
-            DateTime freeChenkinDateTime = new DateTime(date.Year, date.Month, date.Day, freeChenkinTime, 0, 0);
-            DateTime freeCheckoutDateTime = new DateTime(date.Year, date.Month, date.Day, freeChenkinTime, 0, 0);
+            DateTime freeChenkinDateTime = new DateTime(date.Year, date.Month, date.Day, DbConst.SettlementHour, 0, 0);
+            DateTime freeCheckoutDateTime = new DateTime(date.Year, date.Month, date.Day, DbConst.SettlementHour, 0, 0);
             Room room = HotelContext.Room.FirstOrDefault(r => r.Id == roomId && !r.IsDel.Value);
             if (room != null)
             {
@@ -470,10 +519,10 @@ namespace HotelManage.BLL
                 {
                     return new KeyValuePair<bool, string>(false, "入住人存在证件号码为空!");
                 }
-                if(!certTypes.Any(c=>c.FullKey==g.CertType) && roomcheck.Status == (int)RoomStatus.Checkin)
-                {
-                    return new KeyValuePair<bool, string>(false, "入住人存在证件类型错误!");
-                }
+                //if(!certTypes.Any(c=>c.FullKey==g.CertType) && roomcheck.Status == (int)RoomStatus.Checkin)
+                //{
+                //    return new KeyValuePair<bool, string>(false, "入住人存在证件类型错误!");
+                //}
             }
             Room room = HotelContext.Room.FirstOrDefault(r => !r.IsDel.Value && r.Id == roomcheck.RoomId);
             if(room==null)
@@ -520,6 +569,7 @@ namespace HotelManage.BLL
                     {
                         CheckId = check.Id,
                         Name = g.Name,
+                        Gender =g.Gender,
                         CertType = g.CertType,
                         CertId = g.CertId,
                         Mobile = g.Mobile,
@@ -582,11 +632,120 @@ namespace HotelManage.BLL
             {
                 return new KeyValuePair<bool, string>(false, msg);
             }
-            //update
+            //update ckeck
             check.UpdateTime = DateTime.Now;
             base.Update(check, "RoomId", "Status", "ReserveTime", "PlanedCheckinTime", "CheckinTime", "PlanedCheckoutTime", "CheckoutTime", "Prices", "Deposit", "Remark", "UpdateTime");
             return new KeyValuePair<bool, string>(true, "更新成功!");
         }
+
+        //修改订单
+        public KeyValuePair<bool, string> UpdateCheck(Roomcheck check, List<Guest> guests, string manager)
+        {
+            if (check.Id <= 0)
+            {
+                return new KeyValuePair<bool, string>(false, "数据错误!");
+            }
+            if (check.Status == (int)RoomStatus.Reserved)
+            {
+                if (!check.PlanedCheckinTime.HasValue)
+                {
+                    return new KeyValuePair<bool, string>(false, "预定房间必须要有计划入住时间!");
+                }
+            }
+            if (check.Status == (int)RoomStatus.Checkin)
+            {
+                if (!check.CheckinTime.HasValue)
+                {
+                    return new KeyValuePair<bool, string>(false, "入住房间必须要有入住时间!");
+                }
+            }
+            if (!check.PlanedCheckoutTime.HasValue)
+            {
+                return new KeyValuePair<bool, string>(false, "必须要有计划离店时间!");
+            }
+            if (guests == null || guests.Count <= 0)
+            {
+                return new KeyValuePair<bool, string>(false, "必须填写入住人或预定人!");
+            }
+            else
+            {
+                foreach(Guest guest in guests)
+                {
+                    if(string.IsNullOrWhiteSpace(guest.Name))
+                    {
+                        return new KeyValuePair<bool, string>(false, "必须填写入住人姓名!");
+                    }
+                    if(string.IsNullOrWhiteSpace(guest.CertId)&& check.Status==(int)RoomStatus.Checkin)
+                    {
+                        return new KeyValuePair<bool, string>(false, "必须填写入住人证件号码!");
+                    }
+                }
+            }
+            Room room = HotelContext.Room.FirstOrDefault(r => !r.IsDel.Value && r.Id == check.RoomId);
+            if (room == null)
+            {
+                return new KeyValuePair<bool, string>(false, "数据错误!");
+            }
+            if (!HotelContext.Hotelmanager.Any(m => !m.IsDel.Value && m.HotelId == room.HotelId && m.WxOpenId == manager))
+            {
+                return new KeyValuePair<bool, string>(false, "没有管理员权限!");
+            }
+            string msg;
+            if (!canReserveOrCheckin(check, out msg))
+            {
+                return new KeyValuePair<bool, string>(false, msg);
+            }
+            using (var tran = HotelContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    //update guests
+                    foreach (Guest guest in guests)
+                    {
+                        guest.CheckId = check.Id;
+                        guest.UpdateTime = DateTime.Now;
+                        var existGuest = HotelContext.Guest.FirstOrDefault(g => g.Id == guest.Id && !g.IsDel.Value);
+                        if(existGuest==null)
+                        {
+                            HotelContext.Guest.Add(guest);
+                        }
+                        else
+                        {
+                            existGuest.CheckId = check.Id;
+                            existGuest.Name = guest.Name;
+                            existGuest.Gender = guest.Gender;
+                            existGuest.CertType = guest.CertType;
+                            existGuest.CertId = guest.CertId;
+                            existGuest.Mobile = guest.Mobile;
+                            existGuest.Address = guest.Address;
+                            existGuest.UpdateTime = DateTime.Now;
+                        }
+                    }
+                    var deleteGuests = HotelContext.Guest.Where(g => g.CheckId == check.Id && !g.IsDel.Value && !guests.Any(t => t.Id == g.Id));
+                    if(deleteGuests!=null&&deleteGuests.Count()>0)
+                    {
+                        foreach(var guest in deleteGuests)
+                        {
+                            guest.IsDel = true;
+                            guest.UpdateTime = DateTime.Now;
+                        }
+                    }
+                    HotelContext.SaveChanges();
+
+                    //update ckeck
+                    check.UpdateTime = DateTime.Now;
+                    base.Update(check, "RoomId", "Status", "ReserveTime", "PlanedCheckinTime", "CheckinTime", "PlanedCheckoutTime", "CheckoutTime", "Prices", "Deposit", "Remark", "UpdateTime");
+                    tran.Commit();
+                    return new KeyValuePair<bool, string>(true, "更新成功!");
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    throw ex;
+                }
+            }
+        }
+
 
         //删除订单
         public KeyValuePair<bool, string> DeleteCheck(Roomcheck check, string manager)

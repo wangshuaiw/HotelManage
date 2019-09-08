@@ -30,7 +30,6 @@ doubleTap = function(e,p,callback) {
 
     // 如果两次点击时间在300毫秒内，则认为是双击事件
     if (currentTime - lastTapTime < 300) {
-      console.log("double tap")
       // 成功触发双击事件时，取消单击事件的执行
       //clearTimeout(that.lastTapTimeoutFunc);
       

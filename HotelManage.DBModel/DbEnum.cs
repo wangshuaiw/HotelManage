@@ -19,6 +19,7 @@ namespace HotelManage.DBModel
 
     public enum RoomStatus
     {
+        Init =0,
         Reserved = 1,
         Checkin = 2,
         Ckeckout = 3

@@ -127,6 +127,22 @@ namespace HotelManage.Api.Controllers
             };
         }
 
+        [HttpPost]
+        public async Task<BaseResponse> BatchDel([FromBody]List<Room> rooms)
+        {
+            string manager = HttpContext.User.Identity.Name;
+            await Task.Run(() => {
+                foreach(Room room in rooms)
+                {
+                    Hander.Delete(room, manager);
+                }
+            });
+            return new BaseResponse()
+            {
+                Status = StatusEnum.Success,
+                Massage = "删除成功"
+            };
+        }
 
     }
 }

@@ -17,14 +17,17 @@ Page({
     canShare:false,
     isShare:false,
 
-    editRoom: 0, //1-新增；2-修改
+    //editRoom: 0, //1-新增；2-修改
+    showAddRoom:false,
     rooms:[],
     roomTypes: null,
     //[{ key: 'dc', value: '大床房' }, { key: 'bj', value: '标准间' }, { key: 'jt', value:'家庭房'}],
     selectRoomType:null,
-    selectRoom:null
-
+    //selectRoom:null
+    manageRoom:false,
+    selectAll:false,
     //token:null
+    pullDownRefresh:false
   },
 
   /**
@@ -66,23 +69,7 @@ Page({
         isShare:false
       })
       //获取rooms
-      wx.request({
-        url: app.globalData.url + 'Room/GetRooms',
-        method: 'GET',
-        header: {
-          "Authorization": "Bearer " + app.globalData.token.token
-        },
-        data: {
-          hotelId: app.globalData.hotel.id
-        },
-        success:res=>{
-          if (res.data && res.data.status && res.data.status == 1 && res.data.data){
-            this.setData({
-              rooms: res.data.data
-            })
-          }
-        }
-      })
+      this.getRooms(app.globalData.hotel.id);
     } else if (options.hotelId && app.globalData.token) {
       //get hotel by id
       wx.request({
@@ -123,23 +110,7 @@ Page({
           isShare: false
         })
         //获取rooms
-        wx.request({
-          url: app.globalData.url + 'Room/GetRooms',
-          method: 'GET',
-          header: {
-            "Authorization": "Bearer " + app.globalData.token.token
-          },
-          data: {
-            hotelId: d.hotel.id
-          },
-          success: res => {
-            if (res.data && res.data.status && res.data.status == 1 && res.data.data) {
-              this.setData({
-                rooms: res.data.data
-              })
-            }
-          }
-        })
+        this.getRooms(d.hotel.id);
       } else if (options.hotelId){
         wx.request({
           url: app.globalData.url + 'Hotel/GetHotelById',
@@ -203,7 +174,8 @@ Page({
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh: function () {
-    this.onLoad();
+    this.data.pullDownRefresh = true
+    this.getRooms(app.globalData.hotel.id);
   },
 
   /**
@@ -231,14 +203,56 @@ Page({
     }
   },
 
-  getUserInfo:function(e){
-    app.globalData.userInfo=e.detail.userInfo
+  getUserInfo: function (e) {
+    app.globalData.userInfo = e.detail.userInfo
     this.setData({
-      userInfo:app.globalData.userInfo,
-      hasUserInfo:true
+      userInfo: app.globalData.userInfo,
+      hasUserInfo: true
     })
   },
-  
+
+  //获取rooms
+  getRooms: function(hotelId){
+    wx.request({
+      url: app.globalData.url + 'Room/GetRooms',
+      method: 'GET',
+      header: {
+        "Authorization": "Bearer " + app.globalData.token.token
+      },
+      data: {
+        hotelId: hotelId
+      },
+      success: res => {
+        if (res.data && res.data.status && res.data.status == 1 && res.data.data) {
+          this.setData({
+            rooms: res.data.data
+          })
+          if (this.data.pullDownRefresh){
+            wx.stopPullDownRefresh();
+            this.data.pullDownRefresh =false;
+          }
+        }
+      }
+    })
+  },
+
+  tapHotel: function (e) {
+    eventH.doubleTap(e, e, (e) => {
+      this.updateHotel(e);
+    })
+  },
+
+  longPressHotel: function (e) {
+    wx.showActionSheet({
+      itemList: ['编辑'],
+      success: res => {
+        if (res.tapIndex == 0) {
+          this.updateHotel();
+        }
+      }
+    })
+  },
+
   //添加宾馆
   addHotel:function(e){
     this.setData({
@@ -253,7 +267,7 @@ Page({
     })
   },
 
-  //添加宾馆保存
+  //保存宾馆
   formSubmit: function (e) {
     //console.log(e.detail.value);
     var value = e.detail.value;
@@ -419,6 +433,7 @@ Page({
               hasHotel: true,
               isShare:false
             })
+            this.getRooms(this.data.myHotel.id);
           } else {
             wx.showToast({
               title: r.data.massage,
@@ -468,9 +483,10 @@ Page({
               }
               this.setData({
                 roomTypes: types,
-                editRoom:1,
-                selectRoom: null,
-                selectRoomType: types[0]
+                //editRoom:1,
+                //selectRoom: null,
+                selectRoomType: types[0],
+                showAddRoom:true
               })
             }else{
               wx.showToast({
@@ -494,8 +510,9 @@ Page({
       })
     }else{
       this.setData({
-        editRoom: 1,
-        selectRoom:null
+        showAddRoom:true
+        //editRoom: 1,
+        //selectRoom:null
         //selectRoomType: types[0]
       })
       if (!this.data.selectRoomType){
@@ -506,16 +523,15 @@ Page({
     }
   },
 
-  //取消编辑
-  cancelEditRoom:function(e){
+  //取消添加房间
+  cancelAddRoom: function (e) {
     this.setData({
-      editRoom: 0,
+      showAddRoom: false,
     })
   },
 
   //添加，修改  房间提交
   editRoomSubmit:function(e){
-    //console.log(e.detail.value);
     var value = e.detail.value;
     if (!value.roomNo){
       wx.showToast({
@@ -531,14 +547,27 @@ Page({
       })
       return;
     }
-    if(this.data.editRoom==1){
+    var existRoom = this.data.rooms.find((v) => {
+      return v.roomNo == value.roomNo && v.id != value.id
+    });
+    if (existRoom) {
+      wx.showToast({
+        title: '已存在相同的房间号',
+        icon: 'none'
+      })
+      return;
+    }
+
+    var type = e.detail.target.dataset.type;
+    if(type=="add"){
       this.addRoomSubmit(value);
-    } else if (this.data.editRoom == 2){
-      this.updateRoomSubmit(value)
+    } else if (type == "update"){
+      this.updateRoomSubmit(value);
     }
   },
 
   addRoomSubmit:function(value){
+    
     wx.request({
       url: app.globalData.url + 'Room/Add',
       method: "POST",
@@ -559,7 +588,8 @@ Page({
             tempRooms.push(r.data.data);
             this.setData({
               rooms: tempRooms,
-              editRoom:0
+              //editRoom:0
+              showAddRoom:false
             })
             //console.log(this.data.rooms);
           } else {
@@ -584,12 +614,38 @@ Page({
     })
   },
 
+  tapRoom: function (e) {
+    if (!this.data.manageRoom){
+      eventH.doubleTap(e, e, (e) => {
+        this.updateRoom(e);
+      })
+    }
+  },
+
+  longPressRoom: function (e) {
+    if (!this.data.manageRoom) {
+      wx.showActionSheet({
+        itemList: ['修改', '删除'],
+        success: res => {
+          //console.log(res.tapIndex);
+          if (res.tapIndex == 0) {
+            this.updateRoom(e);
+          } else if (res.tapIndex == 1){
+            this.deleteRoom(e);
+          }
+        }
+      })
+    }
+  },
+
   updateRoom:function(e){
-    var room = e.currentTarget.dataset.item;
+    var index = e.currentTarget.dataset.index;
+    this.data.rooms[index].edit=true;
+    var room = this.data.rooms[index];
     this.setData({
-      editRoom: 2,
-      selectRoom: room
-    });
+      rooms: this.data.rooms
+    })
+
     var selectType;
     if (this.data.roomTypes && this.data.roomTypes.length>0){
       selectType = this.data.roomTypes.find((e) => (e.key == room.roomType));
@@ -642,6 +698,16 @@ Page({
       })
     }
   },
+
+  //取消编辑
+  cancelEditRoom: function (e) {
+    var index = e.currentTarget.dataset.index;
+    this.data.rooms[index].edit=false;
+    this.setData({
+      rooms:this.data.rooms
+    })
+  },
+
   updateRoomSubmit:function(value){
     wx.request({
       url: app.globalData.url + 'Room/Updete',
@@ -650,31 +716,29 @@ Page({
         "Authorization": "Bearer " + app.globalData.token.token
       },
       data: {
-        id:this.data.selectRoom.id,
-        hotelId: this.data.selectRoom.hotelId,
+        id: value.id,
+        hotelId: this.data.myHotel.id,
         roomNo: value.roomNo,
         roomType: this.data.selectRoomType.key,
         remark: value.remark,
-        isDel: this.data.selectRoom.isDel,
-        createTime: this.data.selectRoom.createTime,
-        wxOpenId: app.globalData.token.openId
+        //isDel: this.data.selectRoom.isDel,
+        //createTime: this.data.selectRoom.createTime,
+        //wxOpenId: app.globalData.token.openId
       },
       success: r => {
         if (r.statusCode == 200 && r.data) {
           if (r.data.status == 1) {
-            this.data.selectRoom.roomNo = value.roomNo;
-            this.data.selectRoom.remark = value.remark;
-            this.data.selectRoom.roomType=this.data.selectRoomType.key;
-            this.data.selectRoom.roomTypeName=this.data.selectRoomType.value;
             for (var i = 0; i < this.data.rooms.length; i++) {
-              if (this.data.rooms[i].id == this.data.selectRoom.id){
-                this.data.rooms[i] = this.data.selectRoom;
+              if (this.data.rooms[i].id == value.id){
+                this.data.rooms[i].roomNo = value.roomNo;
+                this.data.rooms[i].remark = value.remark;
+                this.data.rooms[i].roomType = this.data.selectRoomType.key;
+                this.data.rooms[i].roomTypeName = this.data.selectRoomType.value;
+                this.data.rooms[i].edit=false;
               }
             }
             this.setData({
-              rooms: this.data.rooms,
-              selectRoom: this.data.selectRoom,
-              editRoom: 0
+              rooms: this.data.rooms
             })
           } else {
             wx.showToast({
@@ -697,8 +761,10 @@ Page({
       }
     })
   },
+
   deleteRoom:function(e){
-    var room = e.currentTarget.dataset.item;
+    var index = e.currentTarget.dataset.index;
+    var room = this.data.rooms[index];
     wx.showModal({
       title: '确定删除！',
       content: '删除后，房间的历史入住信息也将被删除！',
@@ -713,28 +779,13 @@ Page({
             data: {
               id: room.id,
               hotelId: room.hotelId,
-              roomNo: room.roomNo,
-              roomType: room.roomType,
-              remark: room.remark,
-              isDel: room.isDel,
-              createTime: room.createTime,
-              wxOpenId: app.globalData.token.openId
             },
             success: r => {
               if (r.statusCode == 200 && r.data) {
                 if (r.data.status == 1) {
-                  var index=-1;
-                  for (var i = 0; i < this.data.rooms.length; i++) {
-                    if (this.data.rooms[i].id == room.id) {
-                      index=i;
-                      break;
-                    }
-                  }
                   this.data.rooms.splice(index, 1);
                   this.setData({
                     rooms: this.data.rooms,
-                    selectRoom: null,
-                    editRoom: 0
                   })
                 } else {
                   wx.showToast({
@@ -757,44 +808,139 @@ Page({
             }
           })
         } else if(res.cancel) {
-          //console.log('用户点击取消')
         }
       }
     })
   },
-  tapHotel:function(e){
-    eventH.doubleTap(e,e,(e)=>{
-      this.updateHotel(e);
+
+  manageRooms:function(e){
+    this.setData({
+      manageRoom:true
     })
   },
 
-  longPressHotel:function(e){
-    wx.showActionSheet({
-      itemList: ['编辑'],
-      success:res=>{
-        if (res.tapIndex==0){
-          this.updateHotel();
-        } 
+  completeManageRooms:function(e){
+    this.setData({
+      manageRoom: false
+    })
+  },
+
+  checkboxChange(e) {
+    for (var i = 0; i < this.data.rooms.length; i++) {
+      if (e.detail.value.indexOf(i.toString())>=0){
+        this.data.rooms[i].checked = true;
+      }else{
+        this.data.rooms[i].checked = false;
       }
+    }
+    this.setData({
+      selectAll: false
     })
   },
 
-  tapRoom:function(e){
-    eventH.doubleTap(e, e, (e) => {
-      this.updateRoom(e);
+  selectAllFunc:function(e){
+    for(var i=0;i<this.data.rooms.length;i++){
+      this.data.rooms[i].checked = true;
+    }
+    this.setData({
+      rooms:this.data.rooms,
+      selectAll:true
     })
   },
 
-  longPressRoom:function(e){
-    wx.showActionSheet({
-      itemList: ['编辑', '删除'],
-      success: res=> {
-        //console.log(res.tapIndex);
-        if (res.tapIndex == 0) {
-          this.updateRoom(e);
+  selectNoneFunc:function(e){
+    for (var i = 0; i < this.data.rooms.length; i++) {
+      this.data.rooms[i].checked = false;
+    }
+    this.setData({
+      rooms: this.data.rooms,
+      selectAll: false
+    })
+  },
+
+  delCheckedRooms:function(e){
+    var checkedRooms = [];
+    var i = this.data.rooms.length - 1;
+    while (i >= 0) {
+      if (this.data.rooms[i].checked) {
+        checkedRooms.push(this.data.rooms[i]);
+        this.data.rooms.splice(i, 1);
+      }
+      i--;
+    }
+    if (checkedRooms.length>0){
+      wx.showModal({
+        title: '确定删除！',
+        content: '删除后，房间的历史入住信息也将被删除！',
+        success: res => {
+          if (res.confirm) {
+            
+            /*
+            wx.request({
+              url: app.globalData.url + 'Room/BatchDel',
+              method: "POST",
+              header: {
+                "Authorization": "Bearer " + app.globalData.token.token
+              },
+              data: checkedRooms,
+              success: r => {
+                if (r.statusCode == 200 && r.data) {
+                  if (r.data.status == 1) {
+                    this.setData({
+                      rooms: this.data.rooms,
+                    })
+                  } else {
+                    wx.showToast({
+                      title: '网络问题，请稍后再试',
+                      icon: 'none'
+                    });
+                  }
+                } else {
+                  wx.showToast({
+                    title: '网络问题，请稍后再试',
+                    icon: 'none'
+                  });
+                }
+              },
+              fail: r => {
+                wx.showToast({
+                  title: '网络问题，请稍后再试',
+                  icon: 'none'
+                });
+              }
+            })
+            */
+
+            for (var i = 0; i < checkedRooms.length;i++){
+              if (checkedRooms[i].checked){
+                var room = checkedRooms[i];
+                wx.request({
+                  url: app.globalData.url + 'Room/Delete',
+                  method: "POST",
+                  header: {
+                    "Authorization": "Bearer " + app.globalData.token.token
+                  },
+                  data: {
+                    id: room.id,
+                    hotelId: room.hotelId,
+                  },
+                })
+              }
+            }
+            this.setData({
+              rooms: this.data.rooms,
+            })
+            
+          } else if (res.cancel) {
+          }
         }
-      }
-    })
+      })
+    }else{
+      wx.showToast({
+        title: '请选择房间',
+        icon: 'none'
+      });
+    }
   }
-  
+
 })

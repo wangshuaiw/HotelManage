@@ -83,6 +83,8 @@ namespace HotelManage.DBModel
 
                 entity.Property(e => e.Name).HasColumnType("varchar(45)");
 
+                entity.Property(e => e.Gender).HasColumnType("int(4)");
+
                 entity.Property(e => e.Address).HasColumnType("varchar(100)");
 
                 entity.Property(e => e.UpdateTime)

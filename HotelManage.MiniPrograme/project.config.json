@@ -8,13 +8,23 @@
 		"es6": true,
 		"postcss": true,
 		"minified": true,
-		"newFeature": true
+		"newFeature": true,
+		"checkInvalidKey": true,
+		"checkSiteMap": true,
+		"uploadWithSourceMap": true,
+		"babelSetting": {
+			"ignore": [],
+			"disablePlugins": [],
+			"outputPath": ""
+		}
 	},
 	"compileType": "miniprogram",
 	"libVersion": "2.0.4",
 	"appid": "wxab0fc01252bb7d6f",
 	"projectname": "MyHotelManage",
 	"isGameTourist": false,
+	"simulatorType": "wechat",
+	"simulatorPluginLibVersion": {},
 	"condition": {
 		"search": {
 			"current": -1,
@@ -36,11 +46,11 @@
 			"current": 0,
 			"list": [
 				{
-					"id": -1,
+					"id": 0,
 					"name": "共享管理",
 					"pathName": "pages/mypage/mypage",
-					"query": "hotelId=22",
-					"scene": "1008"
+					"query": "hotelId=23",
+					"scene": 1007
 				}
 			]
 		}
