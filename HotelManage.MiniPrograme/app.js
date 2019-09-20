@@ -78,17 +78,17 @@ App({
           //wx.switchTab({
           //  url: '/pages/mypage/mypage'
           //})
-          wx.navigateTo({
-            url: '/pages/login/login',
-          })
+          //wx.navigateTo({
+          //  url: '/pages/login/login',
+          //})
         }
       }
     })
   },
   globalData: {
-    //url:'https://xiaolvguanjia.xyz/api/',
+    url:'https://xiaolvguanjia.xyz/api/',
     //url:'https://127.0.0.1:5001/api/',
-    url: 'http://192.168.31.242:80/api/',
+    //url: 'http://192.168.31.242:80/api/',
     userInfo: null,
     hotel: null,
     token:null

@@ -70,5 +70,10 @@ Page({
     wx.switchTab({
       url: '/pages/mypage/mypage',
     })
+  },
+  reject:function(e){
+    wx.switchTab({
+      url: '/pages/mypage/mypage',
+    })
   }
 })

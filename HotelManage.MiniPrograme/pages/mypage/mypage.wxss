@@ -20,6 +20,10 @@
   display: none;
 }
 
+.login{
+  margin: 20rpx;
+}
+
 .myhotel {
   margin: 20rpx;
   margin-bottom: 75rpx;

@@ -1,6 +1,10 @@
 <!--pages/login/login.wxml-->
 <view class='container'>
-  <button open-type="getUserInfo" bindgetuserinfo="getUserInfo">
-    请先授权登录
+  <view class='padding'>
+    此小程序主要功能是管理宾馆房间的预定、入住信息，帮助管理人员进行宾馆管理及记账。
+  </view>
+  <button class='margin' bindtap='reject' >拒绝登录</button>
+  <button open-type="getUserInfo" bindgetuserinfo="getUserInfo" class='margin'>
+    授权登录
   </button>
 </view>
