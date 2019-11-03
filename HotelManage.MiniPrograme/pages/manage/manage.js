@@ -5,7 +5,7 @@ Page({
    * 页面的初始数据
    */
   data: {
-  
+    selectIndex:0
   },
 
   /**
@@ -62,5 +62,11 @@ Page({
    */
   onShareAppMessage: function () {
   
+  },
+
+  tabSelect(e) {
+    this.setData({
+      selectIndex: e.currentTarget.dataset.id
+    })
   }
 })

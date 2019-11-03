@@ -7,7 +7,7 @@
     <view class="top">
       <view class='text-xl text-bold'>{{hotel.name}}</view>
       <picker class='solid padding-xs margin-top-xs radius' mode="date" value="{{date}}" bindchange="dateChange" >
-            <view><text>{{date}}</text><text class='cuIcon-search margin-left-xs'></text></view>
+            <view><text class='padding-left padding-right'>{{date}}</text><text class='cuIcon-search margin-left-xs'></text></view>
       </picker>
     </view>
     <view class='btnGroup'>

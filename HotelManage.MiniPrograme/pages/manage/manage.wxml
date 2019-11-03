@@ -1,0 +1,26 @@
+<!--pages/room/room.wxml-->
+<scroll-view scroll-x class="bg-white nav">
+  <view class="flex text-center">
+    <!--<view class="cu-item flex-sub {{index==TabCur?'text-orange cur':''}}" wx:for="{{4}}" wx:key bindtap="tabSelect" data-id="{{index}}">
+      Tab{{index}}
+    </view>-->
+    <view class='cu-item flex-sub {{selectIndex==0?"text-green cur":""}}' bindtap="tabSelect" data-id="0">人员查找</view>
+    <view class='cu-item flex-sub {{selectIndex==1?"text-green cur":""}}' bindtap="tabSelect" data-id="1">营业收入</view>
+    
+  </view>
+</scroll-view>
+<view wx:if="{{selectIndex==0}}">
+  <view class='margin search'>
+    <input class='fullwidth text-lg' type='text' placeholder='输入身份证号码' maxlength='18'> </input>
+    <view class='text-xxl'><text class='cuIcon-search bg-white text-green'></text></view>
+  </view>
+  <view class='cu-item'>
+    <view class='content padding-tb-sm'>
+      2019年01月01日-2019年1月4日
+    </view>
+    <view class="action"></view>
+  </view>
+</view>
+<view wx:elif="{{selectIndex==1}}">
+  营业收入
+</view>

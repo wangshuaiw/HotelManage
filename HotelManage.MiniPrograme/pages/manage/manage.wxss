@@ -1,0 +1,14 @@
+/* pages/room/room.wxss */
+.search{
+  background-color:var(--white);
+  padding:1rpx 30rpx;
+  display:flex;
+  align-items:center;
+  min-height:100rpx;
+  justify-content:space-between;
+  border-radius:10rpx;
+}
+
+.fullwidth{
+  width: 100%;
+}

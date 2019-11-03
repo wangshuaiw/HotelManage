@@ -3,7 +3,7 @@
     "pages/index/index",
     "pages/mypage/mypage",
     "pages/status/status",
-    "pages/room/room",
+    "pages/manage/manage",
     "pages/login/login",
     "pages/loginerror/loginerror",
     "pages/camera/camera",
@@ -26,7 +26,7 @@
         "selectedIconPath": "image/ic_index_ck.png"
       },
       {
-        "pagePath": "pages/room/room",
+        "pagePath": "pages/manage/manage",
         "text": "管理",
         "iconPath": "image/ic_star.png",
         "selectedIconPath": "image/ic_star_ck.png"

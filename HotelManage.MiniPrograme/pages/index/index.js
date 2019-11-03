@@ -15,6 +15,10 @@ Page({
     checkoutTime:null,
     pullDownRefresh:false
   },
+
+  /**
+   * 生命周期函数--监听页面加载
+   */
   onLoad: function () {
     var sysDate = util.formatDate(new Date());
     this.setData({
@@ -43,6 +47,11 @@ Page({
           //获取房间及现状的状态
           this.getRoomsStatus(d.hotel.id)
         }
+        //else{
+        //  wx.switchTab({
+        //    url: '/pages/mypage/mypage'
+        //  })
+        //}
       }
     }
   },

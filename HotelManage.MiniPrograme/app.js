@@ -32,6 +32,12 @@ App({
                   };
                   if (this.globalDataReadyCallback){
                     this.globalDataReadyCallback(this.globalData);
+                  };
+                  
+                  if (!this.globalData.hotel){
+                    wx.switchTab({
+                      url: '/pages/mypage/mypage'
+                    })
                   }
                 }else{
                   wx.navigateTo({
@@ -75,9 +81,9 @@ App({
             }
           })
         }else{
-          //wx.switchTab({
-          //  url: '/pages/mypage/mypage'
-          //})
+          wx.switchTab({
+            url: '/pages/mypage/mypage'
+          })
           //wx.navigateTo({
           //  url: '/pages/login/login',
           //})
